@@ -1,0 +1,58 @@
+@import './_variables.scss';
+@import './_mixins.scss';
+@import '@fontsource/montserrat/400.css';
+@import '@fontsource/montserrat/700.css';
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import './utility.scss';
+@import './_buttons.scss';
+
+:root {
+  --bs-body-font-family: 'Montserrat', Arial, sans-serif;
+  --bs-primary: #4D49B3;
+  --bs-secondary: #00905F;
+  --bs-success: #00905F;
+  --bs-info: #CD60AE;
+  --bs-warning: #FFB900;
+  --bs-danger: #C31818;
+  --bs-light: #FEFEFE;
+  --bs-dark: #212122;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ...rest of your CSS from index.css...
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--bs-body-font-family);
+  background: var(--bs-light);
+  color: var(--bs-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+.btn-secondary {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}

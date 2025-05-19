@@ -1,0 +1,6 @@
+// SCSS mixins for the project
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

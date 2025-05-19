@@ -1,0 +1,11 @@
+// Custom button styles using theme variables
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  font-family: $font-family-base;
+}
+.btn-secondary {
+  background-color: $secondary;
+  border-color: $secondary;
+  font-family: $font-family-base;
+}
