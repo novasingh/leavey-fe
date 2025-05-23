@@ -5,8 +5,9 @@ import BlankLayout from '../../layouts/BlankLayout'
 import api from '../../services/axios'
 import loginIllustration from '../../assets/images/login-img.jpg'
 import logo from '../../assets/images/logo.png'
-
+import { useTranslation } from 'react-i18next'; 
 const ForgotPassword = () => {
+  const { t } = useTranslation(); 
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,7 +23,7 @@ const ForgotPassword = () => {
         navigate('/forgot-password-confirmation', { state: { email } })
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials')
+      setError(err.response?.data?.message || t('forgotPassword.errorMessage'));
     } finally {
       setLoading(false)
     }
@@ -42,14 +43,14 @@ const ForgotPassword = () => {
               <div className="bg-white rounded-4 shadow-sm p-4 mx-auto" style={{ minWidth: 320 }}>
                 <div className="text-center mb-4">
                   <Link to="/"><img src={logo} alt="Leavey Logo" style={{ width: "45%", marginBottom: 8 }} /></Link>
-                  <div className="fw-semibold fs-5 mt-2 text-dark">FORGOT PASSWORD</div>
+                  <div className="fw-semibold fs-5 mt-2 text-dark">{t('forgotPassword.title')}</div>
                 </div>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3" controlId="loginEmail">
                     <Form.Control
                       type="email"
-                      placeholder="Email address"
+                      placeholder={t('forgotPassword.emailPlaceholder')}
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       required
@@ -62,10 +63,10 @@ const ForgotPassword = () => {
                     style={{ fontSize: 16 }}
                     disabled={loading}
                   >
-                    {loading ? 'Submitting...' : 'Submit'}
+                    {loading ? t('forgotPassword.submitting') : t('forgotPassword.submitButton')}
                   </Button>
                   <div className="text-center my-2">
-                    back to <a href="/login" className="fw-bold text-primary">Login</a>
+                    {t('forgotPassword.backToLoginPrompt')} <a href="/login" className="fw-bold text-primary">{t('forgotPassword.loginLink')}</a>
                   </div>
                 </Form>
               </div>

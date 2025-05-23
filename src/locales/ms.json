@@ -1,0 +1,122 @@
+{
+  "welcome": "Selamat datang ke Leavey!",
+  "dashboard": "Papan Pemuka",
+  "calendar": "Kalendar",
+  "myLeaves": "Cuti Saya",
+  "team": "Pasukan",
+  "leaveRequests": "Permohonan Cuti",
+  "reports": "Laporan",
+  "documents": "Dokumen",
+  "settings": "Tetapan",
+  "faq": "Soalan Lazim",
+  "profile": "Profil Saya",
+  "notifications": "Notifikasi",
+  "logout": "Log Keluar",
+  "notFound": "Halaman Tidak Dijumpai",
+  "todayIs": "Hari ini",
+  "login": {
+    "welcomeBack": "SELAMAT KEMBALI!",
+    "emailPlaceholder": "Alamat emel",
+    "passwordPlaceholder": "Kata laluan",
+    "rememberMe": "Ingat Saya",
+    "forgotPasswordLink": "Lupa Kata Laluan?",
+    "loginButton": "Log Masuk",
+    "loggingIn": "Sedang log masuk...",
+    "or": "atau",
+    "signInWithGoogle": "Daftar masuk dengan Google",
+    "invalidCredentials": "Butiran tidak sah",
+    "hidePassword": "Sembunyikan kata laluan",
+    "showPassword": "Tunjukkan kata laluan"
+  },
+  "forgotPassword": {
+    "title": "LUPA KATA LALUAN",
+    "emailPlaceholder": "Alamat emel",
+    "submitButton": "Hantar",
+    "submitting": "Menghantar...",
+    "backToLoginPrompt": "kembali ke",
+    "loginLink": "Log Masuk",
+    "errorMessage": "Permintaan tidak dapat diproses. Sila cuba lagi."
+  },
+  "header": {
+    "forEmployee": "untuk Pekerja",
+    "lang": {
+      "enShort": "EN",
+      "msShort": "MS",
+      "zhShort": "中",
+      "english": "Inggeris",
+      "malay": "Melayu",
+      "chinese": "Cina"
+    },
+    "notifications": {
+      "title": "Notifikasi",
+      "newCount": "{{count}} Baru",
+      "sample": {
+        "leaveApproved": "Permohonan cuti anda telah diluluskan",
+        "newTeamMember": "Ahli pasukan baru ditambah",
+        "timeAgo": "{{time}} lalu"
+      },
+      "viewAll": "Lihat semua notifikasi"
+    },
+    "user": {
+      "profile": "Profil",
+      "logout": "Log Keluar"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Papan Pemuka",
+    "myLeaves": "Cuti Saya",
+    "calendar": "Kalendar",
+    "faq": "Soalan Lazim",
+    "reports": "Laporan",
+    "documents": "Dokumen",
+    "settings": "Tetapan"
+  },
+  "dashboardPage": {
+    "title": "Papan Pemuka",
+    "timeLogButton": "Log Masa",
+    "requestLeaveButton": "Mohon Cuti",
+    "availableLeaveDays": "Baki Cuti Tersedia",
+    "teamMembers": "Ahli Pasukan",
+    "pendingRequests": "Permohonan Tertunda",
+    "totalDepartments": "Jumlah Jabatan",
+    "recentLeaveRequestsTitle": "Permohonan Cuti Terkini",
+    "viewAllButton": "Lihat Semua",
+    "teamCalendarTitle": "Kalendar Pasukan",
+    "calendarPlaceholderText": "Paparan kalendar akan dipaparkan di sini",
+    "upcomingEventsTitle": "Acara Akan Datang",
+    "teamMembersCardTitle": "Ahli Pasukan",
+    "statusActive": "Aktif",
+    "statusOnLeave": "Sedang Bercuti",
+    "table": {
+      "employee": "Pekerja",
+      "leaveType": "Jenis Cuti",
+      "fromDate": "Dari Tarikh",
+      "toDate": "Hingga Tarikh",
+      "days": "Hari",
+      "status": "Status"
+    },
+    "employees": {
+      "janeSmith": "Jane Smith",
+      "michaelBrown": "Michael Brown",
+      "sarahJohnson": "Sarah Johnson",
+      "davidLee": "David Lee"
+    },
+    "leaveTypes": {
+      "annual": "Cuti Tahunan",
+      "sick": "Cuti Sakit",
+      "personal": "Cuti Peribadi",
+      "wfh": "Kerja Dari Rumah"
+    },
+    "events": {
+      "teamMeeting": "Mesyuarat Pasukan",
+      "projectDeadline": "Tarikh Akhir Projek",
+      "companyHoliday": "Cuti Umum Syarikat"
+    },
+    "positions": {
+      "uiDesigner": "Pereka UI",
+      "developer": "Pembangun",
+      "projectManager": "Pengurus Projek",
+      "qaEngineer": "Jurutera QA"
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "welcome": "Welcome to Leavey!",
+  "dashboard": "Dashboard",
+  "calendar": "Calendar",
+  "myLeaves": "My Leaves",
+  "team": "Team",
+  "leaveRequests": "Leave Requests",
+  "reports": "Reports",
+  "documents": "Documents",
+  "settings": "Settings",
+  "faq": "FAQ",
+  "profile": "My Profile",
+  "notifications": "Notifications",
+  "logout": "Logout",
+  "notFound": "Page Not Found",
+  "todayIs": "Today is",
+  "login": {
+    "welcomeBack": "WELCOME BACK!",
+    "emailPlaceholder": "Email address",
+    "passwordPlaceholder": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPasswordLink": "Forgot Password?",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "or": "or",
+    "signInWithGoogle": "Sign in with Google",
+    "invalidCredentials": "Invalid credentials",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password"
+  },
+  "forgotPassword": {
+    "title": "FORGOT PASSWORD",
+    "emailPlaceholder": "Email address",
+    "submitButton": "Submit",
+    "submitting": "Submitting...",
+    "backToLoginPrompt": "back to",
+    "loginLink": "Login",
+    "errorMessage": "Could not process request. Please try again."
+  },
+  "header": {
+    "forEmployee": "for Employee",
+    "lang": {
+      "enShort": "EN",
+      "msShort": "MS",
+      "zhShort": "中文",
+      "english": "English",
+      "malay": "Malay",
+      "chinese": "中文"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "newCount": "{{count}} New",
+      "sample": {
+        "leaveApproved": "Your leave request was approved",
+        "newTeamMember": "New team member added",
+        "timeAgo": "{{time}} ago"
+      },
+      "viewAll": "View all notifications"
+    },
+    "user": {
+      "profile": "Profile",
+      "logout": "Logout"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "myLeaves": "My Leaves",
+    "calendar": "Calendar",
+    "faq": "FAQ",
+    "reports": "Reports",
+    "documents": "Documents",
+    "settings": "Settings"
+  },
+  "dashboardPage": {
+    "title": "Dashboard",
+    "timeLogButton": "Time Log",
+    "requestLeaveButton": "Request Leave",
+    "availableLeaveDays": "Available Leave Days",
+    "teamMembers": "Team Members",
+    "pendingRequests": "Pending Requests",
+    "totalDepartments": "Total Departments",
+    "recentLeaveRequestsTitle": "Recent Leave Requests",
+    "viewAllButton": "View All",
+    "teamCalendarTitle": "Team Calendar",
+    "calendarPlaceholderText": "Calendar view will be displayed here",
+    "upcomingEventsTitle": "Upcoming Events",
+    "teamMembersCardTitle": "Team Members",
+    "statusActive": "Active",
+    "statusOnLeave": "On Leave",
+    "table": {
+      "employee": "Employee",
+      "leaveType": "Leave Type",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "days": "Days",
+      "status": "Status"
+    },
+    "employees": {
+      "janeSmith": "Jane Smith",
+      "michaelBrown": "Michael Brown",
+      "sarahJohnson": "Sarah Johnson",
+      "davidLee": "David Lee"
+    },
+    "leaveTypes": {
+      "annual": "Annual Leave",
+      "sick": "Sick Leave",
+      "personal": "Personal Leave",
+      "wfh": "Work From Home"
+    },
+    "events": {
+      "teamMeeting": "Team Meeting",
+      "projectDeadline": "Project Deadline",
+      "companyHoliday": "Company Holiday"
+    },
+    "positions": {
+      "uiDesigner": "UI Designer",
+      "developer": "Developer",
+      "projectManager": "Project Manager",
+      "qaEngineer": "QA Engineer"
+    }
+  }
+}

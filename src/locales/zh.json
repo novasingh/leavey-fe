@@ -1,0 +1,122 @@
+{
+  "welcome": "欢迎来到 Leavey!",
+  "dashboard": "仪表板",
+  "calendar": "日历",
+  "myLeaves": "我的假期",
+  "team": "团队",
+  "leaveRequests": "请假申请",
+  "reports": "报告",
+  "documents": "文件",
+  "settings": "设置",
+  "faq": "常见问题",
+  "profile": "我的资料",
+  "notifications": "通知",
+  "logout": "登出",
+  "notFound": "找不到页面",
+  "todayIs": "今天是",
+  "login": {
+    "welcomeBack": "欢迎回来!",
+    "emailPlaceholder": "电子邮件地址",
+    "passwordPlaceholder": "密码",
+    "rememberMe": "记住我",
+    "forgotPasswordLink": "忘记密码？",
+    "loginButton": "登录",
+    "loggingIn": "登录中...",
+    "or": "或",
+    "signInWithGoogle": "使用 Google 登录",
+    "invalidCredentials": "无效的凭据",
+    "hidePassword": "隐藏密码",
+    "showPassword": "显示密码"
+  },
+  "forgotPassword": {
+    "title": "忘记密码",
+    "emailPlaceholder": "电子邮件地址",
+    "submitButton": "提交",
+    "submitting": "提交中...",
+    "backToLoginPrompt": "返回",
+    "loginLink": "登录",
+    "errorMessage": "无法处理请求。请再试一次。"
+  },
+  "header": {
+    "forEmployee": "员工版",
+    "lang": {
+      "enShort": "英",
+      "msShort": "马",
+      "zhShort": "中",
+      "english": "英语",
+      "malay": "马来语",
+      "chinese": "中文"
+    },
+    "notifications": {
+      "title": "通知",
+      "newCount": "{{count}} 条新通知",
+      "sample": {
+        "leaveApproved": "您的请假申请已获批准",
+        "newTeamMember": "添加了新的团队成员",
+        "timeAgo": "{{time}}前"
+      },
+      "viewAll": "查看所有通知"
+    },
+    "user": {
+      "profile": "个人资料",
+      "logout": "登出"
+    }
+  },
+  "sidebar": {
+    "dashboard": "仪表板",
+    "myLeaves": "我的假期",
+    "calendar": "日历",
+    "faq": "常见问题",
+    "reports": "报告",
+    "documents": "文件",
+    "settings": "设置"
+  },
+  "dashboardPage": {
+    "title": "仪表板",
+    "timeLogButton": "时间记录",
+    "requestLeaveButton": "申请休假",
+    "availableLeaveDays": "可用休假天数",
+    "teamMembers": "团队成员",
+    "pendingRequests": "待处理请求",
+    "totalDepartments": "部门总数",
+    "recentLeaveRequestsTitle": "最近的休假申请",
+    "viewAllButton": "查看全部",
+    "teamCalendarTitle": "团队日历",
+    "calendarPlaceholderText": "日历视图将在此处显示",
+    "upcomingEventsTitle": "近期活动",
+    "teamMembersCardTitle": "团队成员",
+    "statusActive": "活跃",
+    "statusOnLeave": "休假中",
+    "table": {
+      "employee": "员工",
+      "leaveType": "休假类型",
+      "fromDate": "开始日期",
+      "toDate": "结束日期",
+      "days": "天数",
+      "status": "状态"
+    },
+    "employees": {
+      "janeSmith": "简·史密斯",
+      "michaelBrown": "迈克尔·布朗",
+      "sarahJohnson": "莎拉·约翰逊",
+      "davidLee": "大卫·李"
+    },
+    "leaveTypes": {
+      "annual": "年假",
+      "sick": "病假",
+      "personal": "事假",
+      "wfh": "在家工作"
+    },
+    "events": {
+      "teamMeeting": "团队会议",
+      "projectDeadline": "项目截止日期",
+      "companyHoliday": "公司假期"
+    },
+    "positions": {
+      "uiDesigner": "UI 设计师",
+      "developer": "开发人员",
+      "projectManager": "项目经理",
+      "qaEngineer": "QA 工程师"
+    }
+  }
+}
