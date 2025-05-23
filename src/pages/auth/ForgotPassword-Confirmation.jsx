@@ -19,7 +19,7 @@ const ForgotPasswordConfirmation = () => {
             <div className="w-100 m-2" style={{ maxWidth: 465 }}>
               <div className="bg-white rounded-4 shadow-sm p-4 mx-auto" style={{ minWidth: 320, border: '6px solid #4D49B3' }}>
                 <div className="text-center mb-3">
-                  <img src={logo} alt="Leavey Logo" style={{ width: "45%", marginBottom: 8 }} />
+                  <Link to="/"><img src={logo} alt="Leavey Logo" style={{ width: "45%", marginBottom: 8 }} /></Link>
                 </div>
                 <h5 className="fw-bold text-center mb-3" style={{ color: '#222' }}>PASSWORD RESET REQUEST SENT</h5>
                 <div className="mb-3 text-start" style={{ color: '#222', fontSize: 16 }}>

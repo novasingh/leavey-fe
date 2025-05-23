@@ -1,1 +1,74 @@
-// Utility SCSS functions, mixins, and variables can be added here
+// Utility classes
+// Background colors
+.bg-primary-light { background-color: rgba(var(--bs-primary-rgb), 0.1) !important; }
+.bg-secondary-light { background-color: rgba(var(--bs-secondary-rgb), 0.1) !important; }
+.bg-success-light { background-color: rgba(var(--bs-success-rgb), 0.1) !important; }
+.bg-info-light { background-color: rgba(var(--bs-info-rgb), 0.1) !important; }
+.bg-warning-light { background-color: rgba(var(--bs-warning-rgb), 0.1) !important; }
+.bg-danger-light { background-color: rgba(var(--bs-danger-rgb), 0.1) !important; }
+
+// Text colors
+.text-primary-dark { color: darken($primary, 10%) !important; }
+.text-secondary-dark { color: darken($secondary, 10%) !important; }
+.text-success-dark { color: darken($success, 10%) !important; }
+.text-info-dark { color: darken($info, 10%) !important; }
+.text-warning-dark { color: darken($warning, 10%) !important; }
+.text-danger-dark { color: darken($danger, 10%) !important; }
+
+// Borders
+.border-primary-light { border: 1px solid rgba(var(--bs-primary-rgb), 0.2) !important; }
+.border-secondary-light { border: 1px solid rgba(var(--bs-secondary-rgb), 0.2) !important; }
+.border-success-light { border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important; }
+.border-info-light { border: 1px solid rgba(var(--bs-info-rgb), 0.2) !important; }
+.border-warning-light { border: 1px solid rgba(var(--bs-warning-rgb), 0.2) !important; }
+.border-danger-light { border: 1px solid rgba(var(--bs-danger-rgb), 0.2) !important; }
+
+// Shadows
+.shadow-sm { box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important; }
+.shadow { box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important; }
+.shadow-lg { box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important; }
+
+// Responsive text display
+@media (max-width: 767.98px) {
+  .fs-sm-small { font-size: 0.875rem !important; }
+  .d-sm-none { display: none !important; }
+}
+
+// Truncate text
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Flex helpers
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Avatar styles
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bs-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  
+  &.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  &.avatar-lg {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+}

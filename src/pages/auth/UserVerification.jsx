@@ -4,6 +4,7 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap'
 import BlankLayout from '../../layouts/BlankLayout'
 import loginIllustration from '../../assets/images/login-img.jpg'
 import logo from '../../assets/images/logo.png'
+import { Link } from 'react-router-dom'
 
 const UserVerification = () => {
   const [code, setCode] = useState('')
@@ -35,13 +36,12 @@ const UserVerification = () => {
             <div className="w-100 m-2" style={{ maxWidth: 465 }}>
               <div className="bg-white rounded-4 shadow-sm p-4 mx-auto" style={{ minWidth: 320 }}>
                 <div className="text-center mb-4">
-                  <img src={logo} alt="Leavey Logo" style={{ width: '45%', marginBottom: 8 }} />
+                  <Link to="/"><img src={logo} alt="Leavey Logo" style={{ width: "45%", marginBottom: 8 }} /></Link>
                   <div className="fw-semibold fs-5 mt-2 text-dark">USER VERIFICATION</div>
                 </div>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3" controlId="verificationCode">
-                    <Form.Label>Verification Code</Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter verification code"

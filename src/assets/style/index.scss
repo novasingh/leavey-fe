@@ -41,13 +41,12 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
   font-family: var(--bs-body-font-family);
-  background: var(--bs-light);
+  background: #f5f6fa;
   color: var(--bs-dark);
+  overflow: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
