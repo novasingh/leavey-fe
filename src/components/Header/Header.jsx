@@ -1,24 +1,16 @@
-// Header.jsx
-import React, { useState, useEffect } from 'react';
+
 import { Navbar, Nav, Dropdown, Button } from 'react-bootstrap';
-import { FaBars, FaBell, FaUser } from 'react-icons/fa';
+import { FaBell, FaUser } from 'react-icons/fa';
 import './Header.scss';
 import logo from '../../assets/images/logo.png';
+import { Link } from 'react-router-dom';
 
-const Header = ({ toggleSidebar }) => {
+const Header = () => {
   
   return (
     <header className="app-header px-3">
       <Navbar expand="lg" className="p-0 align-items-center">
         <div className="navbar-left d-flex align-items-center">
-          <Button
-            variant="link"
-            className="toggle-btn d-lg-none" // Only show on smaller screens initially
-            onClick={toggleSidebar}
-            aria-label="Toggle Sidebar"
-          >
-            <FaBars />
-          </Button>
           <Navbar.Brand href="/dashboard" className="d-flex align-items-center me-0">
             <img src={logo} alt="Leavey Logo" className="header-logo-img me-2" />
             <span className="header-logo-text">{" "}for Employee</span>
@@ -26,11 +18,11 @@ const Header = ({ toggleSidebar }) => {
         </div> 
 
         <Nav className="ms-auto header-nav align-items-center">
-          <Dropdown align="end" className="notification-dropdown me-2">
+          <Dropdown align="end" className="notification-dropdown me-4">
             <Dropdown.Toggle variant="link" id="notification-dropdown" className="p-0">
               <span className="badge-container text-dark">
                 <FaBell size={25} />
-                {/* <span className="badge">3</span> */}
+                <span className="badge">3</span>
               </span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -55,7 +47,7 @@ const Header = ({ toggleSidebar }) => {
                 </div>
               </Dropdown.Item>
               <Dropdown.Divider />
-              <Dropdown.Item className="text-center">
+              <Dropdown.Item as={Link} to="/notifications" className="text-center">
                 <small>View all notifications</small>
               </Dropdown.Item>
             </Dropdown.Menu>

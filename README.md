@@ -10,12 +10,23 @@ src/
     images/         # Project images and illustrations
     style/          # SCSS/CSS files, variables, mixins, utilities
     utility/        # JS utility functions
-  components/       # Reusable React components (Header, Sidebar, etc.)
+  components/       # Reusable React components (Header, Sidebar, Card, Table, StatusBadge, etc.)
   hooks/            # Custom React hooks
   layouts/          # Layout components (BlankLayout, MainLayout)
   pages/
-    auth/           # Auth pages (Login, ForgotPassword, UserVerification)
-    dashboard/      # Dashboard pages
+    auth/           # Auth pages (Login, ForgotPassword, UserVerification, etc.)
+    dashboard/      # Dashboard page
+    calendar/       # Calendar page
+    my-leaves/      # My Leaves page
+    team/           # Team page
+    leave-requests/ # Leave Requests page
+    reports/        # Reports page
+    documents/      # Documents page
+    settings/       # Settings page
+    faq/            # FAQ page
+    profile/        # Profile page
+    notifications/  # Notifications page
+    status/         # Status pages (NotFound, etc.)
   services/         # API/axios setup
   store/            # Redux store, reducers, actions
   utility/          # Additional utility functions
@@ -37,6 +48,7 @@ src/
 - **react-hook-form**: Form state management
 - **yup**: Form validation
 - **@fontsource/montserrat**: Montserrat font
+- **react-icons**: Icon library for React
 - **vite**: Fast build tool and dev server
 
 ## Setup Instructions
@@ -77,12 +89,18 @@ src/
 
 ## Folder Conventions
 
-- **components/**: Reusable UI components
+- **components/**: Reusable UI components (Header, Sidebar, Card, Table, StatusBadge, etc.)
 - **layouts/**: Layout wrappers (e.g., with/without sidebar)
-- **pages/**: Page-level components, grouped by feature
+- **pages/**: Page-level components, grouped by feature (dashboard, calendar, my-leaves, team, leave-requests, reports, documents, settings, faq, profile, notifications, status)
 - **store/**: Redux logic (actions, reducers, store setup)
 - **services/**: API/axios logic
 - **assets/**: Images, styles, fonts, and utilities
+
+## Routing & Layouts
+
+- **Protected routes** (dashboard, calendar, my-leaves, team, leave-requests, reports, documents, settings, faq, profile, notifications) are wrapped with `MainLayout` and require authentication (see `routes.jsx`).
+- **Auth routes** (login, forgot password, etc.) use `BlankLayout` or no layout.
+- **NotFound** page is shown for any undefined route.
 
 ---
 

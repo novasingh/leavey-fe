@@ -1,46 +1,58 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ForgotPassword, ForgotPasswordConfirmation, Login, PasswordReset, UserVerification } from './pages/auth'
-import { Dashboard } from './pages/dashboard'
+import { Dashboard } from './pages/dashboard';
+import { Calendar } from './pages/calendar';
+import { MyLeaves } from './pages/my-leaves';
+import { Team } from './pages/team';
+import { LeaveRequests } from './pages/leave-requests';
+import { Reports } from './pages/reports';
+import { Documents } from './pages/documents';
+import { Settings } from './pages/settings';
+import { Faq } from './pages/faq';
+import { Profile } from './pages/profile';
+import { Notifications } from './pages/notifications';
 import MainLayout from './layouts/MainLayout'
+import NotFound from './pages/status/NotFound';
 
-// Create placeholder components for routes we haven't implemented yet
-const PlaceholderPage = ({ title }) => (
-  <MainLayout>
-    <div className="text-center py-5">
-      <h2>{title}</h2>
-      <p className="text-muted">This page is under construction</p>
-    </div>
-  </MainLayout>
-);
+// Wrapper for routes that require MainLayout
+const ProtectedRoute = ({ children }) => {
+  // Add authentication logic here later
+  // For now, assume user is authenticated
+  const isAuthenticated = true; 
 
-const Calendar = () => <PlaceholderPage title="Calendar" />;
-const Team = () => <PlaceholderPage title="Team" />;
-const LeaveRequests = () => <PlaceholderPage title="Leave Requests" />;
-const Reports = () => <PlaceholderPage title="Reports" />;
-const Documents = () => <PlaceholderPage title="Documents" />;
-const Settings = () => <PlaceholderPage title="Settings" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <MainLayout>{children}</MainLayout>;
+};
 
 const AppRoutes = () => (
   <Routes>
-    {/* Auth Routes */}
+    {/* Auth Routes - These typically use BlankLayout or no layout */}
     <Route path="/login" element={<Login />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
     <Route path="/user-verification" element={<UserVerification />} />
-    
-    {/* Dashboard Routes */}
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/calendar" element={<Calendar />} />
-    <Route path="/team" element={<Team />} />
-    <Route path="/leave-requests" element={<LeaveRequests />} />
-    <Route path="/reports" element={<Reports />} />
-    <Route path="/documents" element={<Documents />} />
-    <Route path="/settings" element={<Settings />} />
-    
+
+    {/* Protected Routes with MainLayout */}
+    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+    <Route path="/calender" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+    <Route path="/my-leaves" element={<ProtectedRoute><MyLeaves /></ProtectedRoute>} /> 
+    <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+    <Route path="/leave-requests" element={<ProtectedRoute><LeaveRequests /></ProtectedRoute>} />
+    <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+    <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+    <Route path="/faq" element={<ProtectedRoute><Faq /></ProtectedRoute>} />  
+    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+    <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />   
+    <Route path="/*" element={<ProtectedRoute><NotFound title="Page Not Found" /></ProtectedRoute>} />
+
     {/* Root and Not Found Routes */}
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
-    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    <Route path="*" element={<NotFound />} /> {/* Catch-all for not found pages */}
   </Routes>
 )
 
