@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BlankLayout from '../../layouts/BlankLayout'
-import api from '../../services/axios'
-import { Form, Button, InputGroup, FormControl, Alert, Container, Row, Col, Dropdown } from 'react-bootstrap' // Added Dropdown
+import authService from '../../services/authService'
+import { Form, Button, InputGroup, FormControl, Alert, Container, Row, Col, Dropdown } from 'react-bootstrap'
 import loginIllustration from '../../assets/images/login-img.jpg'
 import logo from '../../assets/images/logo.png'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
@@ -18,17 +18,25 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', { email, password })
-      // Example: store token and redirect
-      localStorage.setItem('token', res.data.token)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.message || t('login.invalidCredentials'))
+      const result = await authService.login(email, password);
+      
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setError(result.error);
+      }
+    } catch {
+      setError(t('login.invalidCredentials'));
     } finally {
       setLoading(false)
     }

@@ -2,11 +2,13 @@ import { Navbar, Nav, Dropdown, Button } from 'react-bootstrap';
 import { FaBell, FaUser } from 'react-icons/fa';
 import './Header.scss';
 import logo from '../../assets/images/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import authService from '../../services/authService';
 
 const Header = () => {
-  const { t, i18n } = useTranslation(); // Added t
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   const changeLanguage = (lng) => {
     console.log(lng);
@@ -14,13 +16,19 @@ const Header = () => {
     document.documentElement.lang = lng;
   };
 
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
+
+  const userRole = authService.getUserRole()
   return (
     <header className="app-header px-3">
       <Navbar expand="lg" className="p-0 align-items-center">
         <div className="navbar-left d-flex align-items-center">
           <Navbar.Brand href="/dashboard" className="d-flex align-items-center me-0">
             <img src={logo} alt="Leavey Logo" className="header-logo-img me-2" />
-            <span className="header-logo-text">{t('header.forEmployee')}</span> {/* Changed */}
+            <span className="header-logo-text">{userRole === 'Admin' ? t('header.forAdmin')  : userRole === 'Manager' ? t('header.forManager')   : userRole === 'Employee' ?  t('header.forEmployee') : ''}</span>
           </Navbar.Brand>
         </div> 
 
@@ -28,9 +36,9 @@ const Header = () => {
           {/* Language Switcher */}
           <Dropdown align="end" className="me-2">
             <Dropdown.Toggle variant="outline-secondary" size="sm" id="lang-switch">
-              {i18n.language === 'en' && t('header.lang.enShort')} {/* Changed */}
-              {i18n.language === 'ms' && t('header.lang.msShort')} {/* Changed */}
-              {i18n.language === 'zh' && t('header.lang.zhShort')} {/* Changed */}
+              {i18n.language === 'en' && t('header.lang.enShort')} 
+              {i18n.language === 'ms' && t('header.lang.msShort')}
+              {i18n.language === 'zh' && t('header.lang.zhShort')}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => changeLanguage('en')}>{t('header.lang.english')}</Dropdown.Item> {/* Changed */}
@@ -80,13 +88,12 @@ const Header = () => {
                 {/* Placeholder for user image or initials */}
                 <FaUser />
               </div>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item href="/profile">
-                <FaUser className="me-2" /> {t('header.user.profile')} {/* Changed */}
+            </Dropdown.Toggle>            <Dropdown.Menu>
+              <Dropdown.Item as={Link} to="/profile">
+                <FaUser className="me-2" /> {t('header.user.profile')}
               </Dropdown.Item>
-              <Dropdown.Item href="/logout">
-                {t('header.user.logout')} {/* Changed */}
+              <Dropdown.Item onClick={handleLogout}>
+                {t('header.user.logout')}
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>

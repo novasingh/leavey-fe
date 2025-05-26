@@ -1,7 +1,6 @@
 // Dashboard.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Badge, Button } from 'react-bootstrap';
-import MainLayout from '../../layouts/MainLayout';
 import { Card, Table, StatusBadge } from '../../components';
 import { 
   FaCalendarAlt, 
@@ -13,7 +12,7 @@ import {
   FaEllipsisV
 } from 'react-icons/fa';
 import './Dashboard.scss';
-import { useTranslation } from 'react-i18next'; // Added
+import { useTranslation } from 'react-i18next';// Added
 
 const Dashboard = () => {
   const { t } = useTranslation(); // Added
@@ -73,117 +72,135 @@ const Dashboard = () => {
     }
   ];
 
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format date and time
+  const dayName = now.toLocaleDateString(undefined, { weekday: 'long' });
+  // Format as '25 March 2025' (no comma)
+  const dateStr = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }).replace(/,/g, '');
+  const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
   return (
-      <div className="dashboardPage-page">
-        <div className="page-header">
-          <h1>{t('dashboardPage.title')}</h1>
-          <div className="page-actions">
-            <Button variant="primary" size="sm" className="ms-2">
-              <FaRegClock className="me-2" />
-              {t('dashboardPage.timeLogButton')}
-            </Button>
-            <Button variant="success" size="sm" className="ms-2">
-              <FaCalendarPlus className="me-2" />
-              {t('dashboardPage.requestLeaveButton')}
-            </Button>
+    <div className="dashboardPage-page">
+      {/* Top Greeting and Date/Time Row */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3" style={{gap: 16}}>
+        <div>
+          <h2 style={{ fontWeight: 700, fontSize: '2rem', marginBottom: 0 }}>
+            Hi <span style={{ fontWeight: 800 }}>Jacob Sartorius</span> <span role="img" aria-label="wave">👋</span>
+          </h2>
+          <div className="text-muted" style={{ fontSize: 16 }}>
+            Your leave status and requests are just a click away!
           </div>
         </div>
-
-        {/* Stats Cards */}
-        <Row className="g-3 mb-4">
-          {stats.map((stat, index) => (
-            <Col key={index} xl={3} md={6} className="d-flex">
-              <Card className="stat-card flex-fill" variant={stat.variant}>
-                <div className="d-flex align-items-center">
-                  <div className={`stat-icon icon-${stat.variant}`}>
-                    {stat.icon}
-                  </div>
-                  <div className="stat-content ms-3">
-                    <h4 className="stat-value">{stat.value}</h4>
-                    <p className="stat-title mb-0">{t(stat.titleKey)}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        <Row className="g-3">
-          {/* Recent Leave Requests */}
-          <Col lg={8}>
-            <Card 
-              title={t('dashboardPage.recentLeaveRequestsTitle')}
-              count={leaveRequests.length} 
-              headerRight={
-                <Button variant="outline-primary" size="sm">{t('dashboardPage.viewAllButton')}</Button>
-              }
-              className="mb-3"
-            >
-              <Table 
-                columns={leaveRequestColumns} 
-                data={leaveRequests} 
-                onRowClick={(row) => console.log('Row clicked:', row)}
-              />
-            </Card>
-
-            {/* Team Calendar (placeholder) */}
-            <Card title={t('dashboardPage.teamCalendarTitle')} className="calendar-card">
-              <div className="calendar-placeholder">
-                <div className="text-center py-5">
-                  <FaCalendarAlt className="display-4 text-muted" />
-                  <h5 className="mt-3">{t('dashboardPage.teamCalendarTitle')}</h5>
-                  <p className="text-muted">{t('dashboardPage.calendarPlaceholderText')}</p>
-                </div>
-              </div>
-            </Card>
-          </Col>
-
-          <Col lg={4}>
-            {/* Upcoming Events */}
-            <Card 
-              title={t('dashboardPage.upcomingEventsTitle')}
-              icon={<FaCalendarAlt />} 
-              className="mb-3"
-            >
-              <div className="events-list">
-                {events.map(event => (
-                  <div key={event.id} className="event-item">
-                    <div className={`event-indicator ${event.type}`}></div>
-                    <div className="event-content">
-                      <h6 className="event-title">{t(event.titleKey)}</h6>
-                      <p className="event-date mb-0">
-                        <small><FaCalendarAlt className="me-1" /> {event.date}</small>
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Team Members */}
-            <Card title={t('dashboardPage.teamMembersCardTitle')} icon={<FaUserFriends />} count={teamMembers.length}>
-              <div className="team-list">
-                {teamMembers.map(member => (
-                  <div key={member.id} className="team-member">
-                    <div className="member-avatar">
-                      {t(member.nameKey).charAt(0)}
-                    </div>
-                    <div className="member-info">
-                      <h6 className="member-name">{t(member.nameKey)}</h6>
-                      <p className="member-position mb-0">{t(member.positionKey)}</p>
-                    </div>
-                    <div className="member-status">
-                      <Badge bg={member.status === 'active' ? 'success' : 'warning'} pill>
-                        {member.status === 'active' ? t('dashboardPage.statusActive') : t('dashboardPage.statusOnLeave')}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <div className="text-end" style={{ minWidth: 220 }}>
+          <div style={{ fontWeight: 600, color: '#3B3B3B', fontSize: 15 }}>
+            <span style={{ color: '#3B3B3B' }}>Today is</span>
+          </div>
+          <div style={{ fontSize: 15 }}> <span style={{ color: '#2D4BFF', fontWeight: 700 }}> {dayName}, </span>{dateStr}</div>
+          <div style={{ fontSize: 15 }}>{timeStr}</div>
+        </div>
       </div>
+
+      {/* Stats Cards */}
+      <Row className="g-3 mb-4">
+        {stats.map((stat, index) => (
+          <Col key={index} xl={3} md={6} className="d-flex">
+            <Card className="stat-card flex-fill" variant={stat.variant}>
+              <div className="d-flex align-items-center">
+                <div className={`stat-icon icon-${stat.variant}`}>
+                  {stat.icon}
+                </div>
+                <div className="stat-content ms-3">
+                  <h4 className="stat-value">{stat.value}</h4>
+                  <p className="stat-title mb-0">{t(stat.titleKey)}</p>
+                </div>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      <Row className="g-3">
+        {/* Recent Leave Requests */}
+        <Col lg={8}>
+          <Card 
+            title={t('dashboardPage.recentLeaveRequestsTitle')}
+            count={leaveRequests.length} 
+            headerRight={
+              <Button variant="outline-primary" size="sm">{t('dashboardPage.viewAllButton')}</Button>
+            }
+            className="mb-3"
+          >
+            <Table 
+              columns={leaveRequestColumns} 
+              data={leaveRequests} 
+              onRowClick={(row) => console.log('Row clicked:', row)}
+            />
+          </Card>
+
+          {/* Team Calendar (placeholder) */}
+          <Card title={t('dashboardPage.teamCalendarTitle')} className="calendar-card">
+            <div className="calendar-placeholder">
+              <div className="text-center py-5">
+                <FaCalendarAlt className="display-4 text-muted" />
+                <h5 className="mt-3">{t('dashboardPage.teamCalendarTitle')}</h5>
+                <p className="text-muted">{t('dashboardPage.calendarPlaceholderText')}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+
+        <Col lg={4}>
+          {/* Upcoming Events */}
+          <Card 
+            title={t('dashboardPage.upcomingEventsTitle')}
+            icon={<FaCalendarAlt />} 
+            className="mb-3"
+          >
+            <div className="events-list">
+              {events.map(event => (
+                <div key={event.id} className="event-item">
+                  <div className={`event-indicator ${event.type}`}></div>
+                  <div className="event-content">
+                    <h6 className="event-title">{t(event.titleKey)}</h6>
+                    <p className="event-date mb-0">
+                      <small><FaCalendarAlt className="me-1" /> {event.date}</small>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Team Members */}
+          <Card title={t('dashboardPage.teamMembersCardTitle')} icon={<FaUserFriends />} count={teamMembers.length}>
+            <div className="team-list">
+              {teamMembers.map(member => (
+                <div key={member.id} className="team-member">
+                  <div className="member-avatar">
+                    {t(member.nameKey).charAt(0)}
+                  </div>
+                  <div className="member-info">
+                    <h6 className="member-name">{t(member.nameKey)}</h6>
+                    <p className="member-position mb-0">{t(member.positionKey)}</p>
+                  </div>
+                  <div className="member-status">
+                    <Badge bg={member.status === 'active' ? 'success' : 'warning'} pill>
+                      {member.status === 'active' ? t('dashboardPage.statusActive') : t('dashboardPage.statusOnLeave')}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

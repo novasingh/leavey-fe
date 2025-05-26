@@ -1,3 +1,6 @@
+@use "sass:color";
+@import "variables";
+
 // Utility classes
 // Background colors
 .bg-primary-light { background-color: rgba(var(--bs-primary-rgb), 0.1) !important; }
@@ -8,12 +11,12 @@
 .bg-danger-light { background-color: rgba(var(--bs-danger-rgb), 0.1) !important; }
 
 // Text colors
-.text-primary-dark { color: darken($primary, 10%) !important; }
-.text-secondary-dark { color: darken($secondary, 10%) !important; }
-.text-success-dark { color: darken($success, 10%) !important; }
-.text-info-dark { color: darken($info, 10%) !important; }
-.text-warning-dark { color: darken($warning, 10%) !important; }
-.text-danger-dark { color: darken($danger, 10%) !important; }
+.text-primary-dark { color: color.scale($primary, $lightness: -10%) !important; }
+.text-secondary-dark { color: color.scale($secondary, $lightness: -10%) !important; }
+.text-success-dark { color: color.scale($success, $lightness: -10%) !important; }
+.text-info-dark { color: color.scale($info, $lightness: -10%) !important; }
+.text-warning-dark { color: color.scale($warning, $lightness: -10%) !important; }
+.text-danger-dark { color: color.scale($danger, $lightness: -10%) !important; }
 
 // Borders
 .border-primary-light { border: 1px solid rgba(var(--bs-primary-rgb), 0.2) !important; }

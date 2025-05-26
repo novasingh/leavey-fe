@@ -1,11 +1,11 @@
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BlankLayout from '../../layouts/BlankLayout'
-import api from '../../services/axios'
+import authService from '../../services/authService'
 import loginIllustration from '../../assets/images/login-img.jpg'
 import logo from '../../assets/images/logo.png'
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
 const ForgotPassword = () => {
   const { t } = useTranslation(); 
   const [email, setEmail] = useState('')
@@ -13,17 +13,27 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
+    
     try {
-      const res = await api.post('/auth/forgot-password', { email })
-      if (res.status === 200) {
-        navigate('/forgot-password-confirmation', { state: { email } })
+      const result = await authService.forgotPassword(email);
+      
+      if (result.success) {
+        navigate('/forgot-password-confirmation', { state: { email } });
+      } else {
+        setError(result.error);
       }
-    } catch (err) {
-      setError(err.response?.data?.message || t('forgotPassword.errorMessage'));
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      setError(t('forgotPassword.errorMessage'));
     } finally {
       setLoading(false)
     }

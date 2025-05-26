@@ -11,20 +11,23 @@ import { Settings } from './pages/settings';
 import { Faq } from './pages/faq';
 import { Profile } from './pages/profile';
 import { Notifications } from './pages/notifications';
+import { LeavesApproval } from './pages/leaves-approval';
+import { LeavesHistory } from './pages/leaves-history';
+import { Department } from './pages/department';
+import { Role } from './pages/role';
+import { LeaveSetting } from './pages/leave-setting';
+import { Employees } from './pages/employees';
 import MainLayout from './layouts/MainLayout'
 import NotFound from './pages/status/NotFound';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// Wrapper for routes that require MainLayout
-const ProtectedRoute = ({ children }) => {
-  // Add authentication logic here later
-  // For now, assume user is authenticated
-  const isAuthenticated = true; 
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <MainLayout>{children}</MainLayout>;
+// Wrapper for routes that require MainLayout and authentication
+const ProtectedMainLayoutRoute = ({ children }) => {
+  return (
+    <ProtectedRoute>
+      <MainLayout>{children}</MainLayout>
+    </ProtectedRoute>
+  );
 };
 
 const AppRoutes = () => (
@@ -34,21 +37,24 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
-    <Route path="/user-verification" element={<UserVerification />} />
-
-    {/* Protected Routes with MainLayout */}
-    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-    <Route path="/calender" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-    <Route path="/my-leaves" element={<ProtectedRoute><MyLeaves /></ProtectedRoute>} /> 
-    <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
-    <Route path="/leave-requests" element={<ProtectedRoute><LeaveRequests /></ProtectedRoute>} />
-    <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-    <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
-    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-    <Route path="/faq" element={<ProtectedRoute><Faq /></ProtectedRoute>} />  
-    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-    <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />   
-    <Route path="/*" element={<ProtectedRoute><NotFound title="Page Not Found" /></ProtectedRoute>} />
+    <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}    <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
+    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} /> 
+    <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
+    <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
+    <Route path="/department" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
+    <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
+    <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
+    <Route path="/employees" element={<ProtectedMainLayoutRoute><Employees /></ProtectedMainLayoutRoute>} />
+    <Route path="/team" element={<ProtectedMainLayoutRoute><Team /></ProtectedMainLayoutRoute>} />
+    <Route path="/leave-requests" element={<ProtectedMainLayoutRoute><LeaveRequests /></ProtectedMainLayoutRoute>} />
+    <Route path="/reports" element={<ProtectedMainLayoutRoute><Reports /></ProtectedMainLayoutRoute>} />
+    <Route path="/documents" element={<ProtectedMainLayoutRoute><Documents /></ProtectedMainLayoutRoute>} />
+    <Route path="/settings" element={<ProtectedMainLayoutRoute><Settings /></ProtectedMainLayoutRoute>} />
+    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />  
+    <Route path="/profile" element={<ProtectedMainLayoutRoute><Profile /></ProtectedMainLayoutRoute>} />
+    <Route path="/notifications" element={<ProtectedMainLayoutRoute><Notifications /></ProtectedMainLayoutRoute>} />
+    <Route path="/*" element={<ProtectedMainLayoutRoute><NotFound title="Page Not Found" /></ProtectedMainLayoutRoute>} />
 
     {/* Root and Not Found Routes */}
     <Route path="/" element={<Navigate to="/dashboard" replace />} />

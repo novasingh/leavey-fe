@@ -37,6 +37,20 @@
     "loginLink": "Log Masuk",
     "errorMessage": "Permintaan tidak dapat diproses. Sila cuba lagi."
   },
+  "passwordReset": {
+    "title": "TETAP SEMULA KATA LALUAN",
+    "passwordPlaceholder": "Kata Laluan Baru",
+    "confirmPasswordPlaceholder": "Sahkan Kata Laluan Baru",
+    "submitButton": "Tetap Semula Kata Laluan",
+    "submitting": "Menetap semula...",
+    "backToLoginPrompt": "kembali ke",
+    "loginLink": "Log Masuk",
+    "passwordMismatch": "Kata laluan tidak sepadan",
+    "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 8 aksara",
+    "errorMessage": "Tidak dapat menetap semula kata laluan. Sila cuba lagi.",
+    "hidePassword": "Sembunyikan kata laluan",
+    "showPassword": "Tunjukkan kata laluan"
+  },
   "header": {
     "forEmployee": "untuk Pekerja",
     "lang": {
@@ -61,15 +75,20 @@
       "profile": "Profil",
       "logout": "Log Keluar"
     }
-  },
-  "sidebar": {
+  },  "sidebar": {
     "dashboard": "Papan Pemuka",
     "myLeaves": "Cuti Saya",
     "calendar": "Kalendar",
     "faq": "Soalan Lazim",
     "reports": "Laporan",
     "documents": "Dokumen",
-    "settings": "Tetapan"
+    "settings": "Tetapan",
+    "leavesApproval": "Kelulusan Cuti",
+    "leavesHistory": "Sejarah Cuti",
+    "department": "Jabatan",
+    "role": "Peranan",
+    "leaveSetting": "Tetapan Cuti",
+    "employees": "Pekerja"
   },
   "dashboardPage": {
     "title": "Papan Pemuka",

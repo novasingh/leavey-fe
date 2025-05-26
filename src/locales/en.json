@@ -37,8 +37,25 @@
     "loginLink": "Login",
     "errorMessage": "Could not process request. Please try again."
   },
+  "passwordReset": {
+    "title": "PASSWORD RESET",
+    "passwordPlaceholder": "New Password",
+    "confirmPasswordPlaceholder": "Confirm New Password",
+    "submitButton": "Reset Password",
+    "submitting": "Resetting...",
+    "backToLoginPrompt": "back to",
+    "loginLink": "Login",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters long",
+    "errorMessage": "Could not reset password. Please try again.",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password"
+  },
   "header": {
     "forEmployee": "for Employee",
+    "forManager": "for Manager",
+    "forAdmin": "for Admin",
+    "forHR": "for HR",
     "lang": {
       "enShort": "EN",
       "msShort": "MS",
@@ -61,15 +78,20 @@
       "profile": "Profile",
       "logout": "Logout"
     }
-  },
-  "sidebar": {
+  },  "sidebar": {
     "dashboard": "Dashboard",
     "myLeaves": "My Leaves",
     "calendar": "Calendar",
     "faq": "FAQ",
     "reports": "Reports",
     "documents": "Documents",
-    "settings": "Settings"
+    "settings": "Settings",
+    "leavesApproval": "Leaves Approval",
+    "leavesHistory": "Leaves History",
+    "department": "Department",
+    "role": "Role",
+    "leaveSetting": "Leave Setting",
+    "employees": "Employees"
   },
   "dashboardPage": {
     "title": "Dashboard",

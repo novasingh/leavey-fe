@@ -3,7 +3,9 @@ import './Sidebar.scss';
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoPaperPlane } from "react-icons/io5";
 import { BsCalendarWeekFill, BsFillChatLeftQuoteFill } from "react-icons/bs";
+import { FaBuilding, FaUserTie, FaCog, FaUsers } from "react-icons/fa";
 import { useTranslation } from 'react-i18next';
+import authService from '../../services/authService';
 
 const Sidebar = () => {
   const { t } = useTranslation(); 
@@ -12,15 +14,40 @@ const Sidebar = () => {
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
-    const menuItems = [
-    { path: '/dashboard', icon: <MdSpaceDashboard />, textKey: 'sidebar.dashboard' }, 
-    { path: '/my-leaves', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves' }, 
-    { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar' },
-    { path: '/faq', icon: <BsFillChatLeftQuoteFill />, textKey: 'sidebar.faq' }, 
-    // { path: '/reports', icon: <FaChartBar />, textKey: 'sidebar.reports' },
-    // { path: '/documents', icon: <FaFileAlt />, textKey: 'sidebar.documents' },
-    // { path: '/settings', icon: <FaCog />, textKey: 'sidebar.settings' },
+
+  // Get user role and permissions
+  const userRole = authService.getUserRole();
+  const userPermissions = authService.getUserPermissions();
+
+
+  // Define all menu items with their required permissions
+  const allMenuItems = [
+    { path: '/dashboard', icon: <MdSpaceDashboard />, textKey: 'sidebar.dashboard', permission: 'dashboard' }, 
+    { path: '/my-leaves', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },    { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' }, 
+    { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' }, 
+    { path: '/employees', icon: <FaUsers />, textKey: 'sidebar.employees', permission: 'employees' },
+    { path: '/department', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' }, 
+    { path: '/role', icon: <FaUserTie />, textKey: 'sidebar.role', permission: 'role' },
+    { path: '/leave-setting', icon: <FaCog />, textKey: 'sidebar.leaveSetting', permission: 'leave-setting' },
+    { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar', permission: 'calender' },
+    { path: '/faq', icon: <BsFillChatLeftQuoteFill />, textKey: 'sidebar.faq', permission: 'faq' }, 
   ];
+
+  // Filter menu items based on user permissions
+  const getFilteredMenuItems = () => {
+    if (!userRole || !userPermissions.length) {
+      // If no role or permissions, show default items
+      return allMenuItems.filter(item => ['dashboard', 'my-leaves', 'calendar', 'faq'].includes(item.permission));
+    }
+
+    console.log('userPermissions:', userPermissions)
+
+    // Filter based on user permissions
+    return allMenuItems.filter(item => userPermissions.includes(item.permission));
+  };
+
+  const menuItems = getFilteredMenuItems();
+
   
   return (
     <aside className={`sidebar`}> 

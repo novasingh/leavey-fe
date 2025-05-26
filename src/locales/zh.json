@@ -37,6 +37,20 @@
     "loginLink": "登录",
     "errorMessage": "无法处理请求。请再试一次。"
   },
+  "passwordReset": {
+    "title": "重置密码",
+    "passwordPlaceholder": "新密码",
+    "confirmPasswordPlaceholder": "确认新密码",
+    "submitButton": "重置密码",
+    "submitting": "重置中...",
+    "backToLoginPrompt": "返回",
+    "loginLink": "登录",
+    "passwordMismatch": "密码不匹配",
+    "passwordTooShort": "密码必须至少8个字符",
+    "errorMessage": "无法重置密码。请再试一次。",
+    "hidePassword": "隐藏密码",
+    "showPassword": "显示密码"
+  },
   "header": {
     "forEmployee": "员工版",
     "lang": {
@@ -61,15 +75,20 @@
       "profile": "个人资料",
       "logout": "登出"
     }
-  },
-  "sidebar": {
+  },  "sidebar": {
     "dashboard": "仪表板",
     "myLeaves": "我的假期",
     "calendar": "日历",
     "faq": "常见问题",
     "reports": "报告",
     "documents": "文件",
-    "settings": "设置"
+    "settings": "设置",
+    "leavesApproval": "假期审批",
+    "leavesHistory": "假期历史",
+    "department": "部门",
+    "role": "角色",
+    "leaveSetting": "假期设置",
+    "employees": "员工"
   },
   "dashboardPage": {
     "title": "仪表板",
