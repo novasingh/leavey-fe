@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Badge, Button } from 'react-bootstrap';
 import { Card, Table, StatusBadge } from '../../components';
-import { 
-  FaCalendarAlt, 
-  FaUserFriends, 
-  FaFileAlt, 
+import {
+  FaCalendarAlt,
+  FaUserFriends,
+  FaFileAlt,
   FaChartBar,
   FaRegClock,
   FaCalendarPlus,
@@ -55,13 +55,13 @@ const Dashboard = () => {
     { key: 'from', title: t('dashboardPage.table.fromDate') },
     { key: 'to', title: t('dashboardPage.table.toDate') },
     { key: 'days', title: t('dashboardPage.table.days') },
-    { 
-      key: 'status', 
+    {
+      key: 'status',
       title: t('dashboardPage.table.status'),
       render: (row) => <StatusBadge status={row.status} />
     },
-    { 
-      key: 'actions', 
+    {
+      key: 'actions',
       title: '',
       width: '50px',
       render: () => (
@@ -88,7 +88,7 @@ const Dashboard = () => {
   return (
     <div className="dashboardPage-page">
       {/* Top Greeting and Date/Time Row */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3" style={{gap: 16}}>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3" style={{ gap: 16 }}>
         <div>
           <h2 style={{ fontWeight: 700, fontSize: '2rem', marginBottom: 0 }}>
             Hi <span style={{ fontWeight: 800 }}>Jacob Sartorius</span> <span role="img" aria-label="wave">👋</span>
@@ -128,17 +128,17 @@ const Dashboard = () => {
       <Row className="g-3">
         {/* Recent Leave Requests */}
         <Col lg={8}>
-          <Card 
+          <Card
             title={t('dashboardPage.recentLeaveRequestsTitle')}
-            count={leaveRequests.length} 
+            count={leaveRequests.length}
             headerRight={
               <Button variant="outline-primary" size="sm">{t('dashboardPage.viewAllButton')}</Button>
             }
             className="mb-3"
           >
-            <Table 
-              columns={leaveRequestColumns} 
-              data={leaveRequests} 
+            <Table
+              columns={leaveRequestColumns}
+              data={leaveRequests}
               onRowClick={(row) => console.log('Row clicked:', row)}
             />
           </Card>
@@ -157,9 +157,9 @@ const Dashboard = () => {
 
         <Col lg={4}>
           {/* Upcoming Events */}
-          <Card 
+          <Card
             title={t('dashboardPage.upcomingEventsTitle')}
-            icon={<FaCalendarAlt />} 
+            icon={<FaCalendarAlt />}
             className="mb-3"
           >
             <div className="events-list">
