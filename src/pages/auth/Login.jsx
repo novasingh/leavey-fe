@@ -21,31 +21,60 @@ const Login = () => {
   // Check if user is already authenticated
   useEffect(() => {
     if (authService.isAuthenticated()) {
-      navigate('/dashboard', { replace: true });
+      const role = authService.getUserRole(); // e.g. "Admin", "Manager", "Employee"
+
+      switch (role) {
+        case 'Admin':
+          navigate('/dashboard/admin', { replace: true });
+          break;
+        case 'Manager':
+          navigate('/dashboard/manager', { replace: true });
+          break;
+        case 'Employee':
+          navigate('/dashboard/employee', { replace: true });
+          break;
+        default:
+          navigate('/dashboard/employee', { replace: true });
+      }
     }
-  }, [navigate]);  
-  
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
       const result = await authService.login(email, password);
-      
+
       if (result.success) {
         const userName = result.user?.first_name || result.user?.username;
         console.log("Logged in as", userName);
 
-        navigate('/dashboard', { replace: true});
+        const role = result.user?.role_details?.name;
+
+        switch (role) {
+          case 'Admin':
+            navigate('/dashboard/admin', { replace: true });
+            break;
+          case 'Manager':
+            navigate('/dashboard/manager', { replace: true });
+            break;
+          case 'Employee':
+            navigate('/dashboard/employee', { replace: true });
+            break;
+          default:
+            navigate('/dashboard/employee', { replace: true });
+            break;
+        }
       } else {
         setError(result.error);
       }
     } catch {
       setError(t('login.invalidCredentials'));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);

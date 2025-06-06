@@ -1,99 +1,100 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, StatusBadge } from '../../components';
-import { Button, Spinner, Alert } from 'react-bootstrap';
-import { getLeaveById, updateLeave } from '../../services/leaveService';
+import { getLeave, updateLeave } from '../../services/leaveService'; // Adjust path as needed
 
-const LeaveRequestDetail = () => {
-  const { id } = useParams();
+const LeavesApprovalDetail = () => {
+  const { id } = useParams(); // leave-request ID
   const navigate = useNavigate();
-
   const [leave, setLeave] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [error, setError] = useState(null);
+  const [note, setNote] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchLeave();
-  }, []);
-
-  const fetchLeave = async () => {
-    try {
-      const data = await getLeaveById(id);
+    const fetchLeave = async () => {
+      const data = await getLeave(id);
       setLeave(data);
-    } catch (err) {
-      console.error('Error fetching leave request:', err);
-      setError('Failed to load leave request.');
+    };
+    fetchLeave();
+  }, [id]);
+
+  const handleAction = async (status) => {
+    setLoading(true);
+    try {
+      await updateLeave(id, { status, note });
+      alert(`Leave ${status}`);
+      navigate('/manager/leaves-approval'); // Redirect back to list
+    } catch (error) {
+      console.error(error);
+      alert('Error updating leave status.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAction = async (status) => {
-    try {
-      setUpdating(true);
-      await updateLeave(id, { status });
-      navigate('/leave-approval');
-    } catch (err) {
-      console.error('Error updating leave status:', err);
-      setError('Failed to update leave status.');
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  if (loading) return <Spinner animation="border" />;
-
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (!leave) return <div>Loading leave request...</div>;
 
   return (
-    <div className="leave-request-detail">
-      <Card title={`Leave Request #${leave.id}`}>
-        <p><strong>Employee:</strong> {leave.employee_name}</p>
-        <p><strong>Type:</strong> {leave.leave_type_name}</p>
-        <p><strong>From:</strong> {new Date(leave.start_date).toLocaleDateString()}</p>
-        <p><strong>To:</strong> {new Date(leave.end_date).toLocaleDateString()}</p>
-        <p><strong>Days:</strong> {leave.days}</p>
-        <p><strong>Note:</strong> {leave.note || '—'}</p>
-        <p><strong>Status:</strong> <StatusBadge status={leave.status} /></p>
-        <p><strong>Submitted At:</strong> {new Date(leave.created_at).toLocaleString()}</p>
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded">
+      <button onClick={() => navigate(-1)} className="text-blue-500 mb-4">&larr; Back</button>
+      <h2 className="text-2xl font-bold mb-4">Leave Request Details</h2>
 
+      <div className="space-y-2 text-gray-700">
+        <p><strong>Employee Name:</strong> {leave.user?.name || 'N/A'}</p>
+        <p><strong>Leave Type:</strong> {leave.leave_type?.name}</p>
+        <p><strong>From:</strong> {leave.start_date}</p>
+        <p><strong>To:</strong> {leave.end_date}</p>
+        <p><strong>Days:</strong> {leave.days}</p>
+        <p><strong>Status:</strong> 
+          <span className={`ml-2 px-2 py-1 rounded text-white text-sm ${
+            leave.status === 'Pending' ? 'bg-yellow-500' :
+            leave.status === 'Approved' ? 'bg-green-600' :
+            'bg-red-500'
+          }`}>
+            {leave.status}
+          </span>
+        </p>
+        {leave.message && <p><strong>Message:</strong> {leave.message}</p>}
         {leave.attachment && (
           <p>
-            <strong>Attachment:</strong>{' '}
-            <a href={leave.attachment} target="_blank" rel="noopener noreferrer">View</a>
+            <strong>Attachment:</strong> 
+            <a href={leave.attachment} target="_blank" rel="noopener noreferrer" className="text-blue-600 ml-2">
+              View Attachment
+            </a>
           </p>
         )}
+      </div>
 
-        {leave.status === 'Pending' && (
-          <div className="d-flex gap-2 mt-3">
-            <Button
-              variant="success"
-              onClick={() => handleAction('Approved')}
-              disabled={updating}
-            >
-              {updating ? 'Approving...' : 'Approve'}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => handleAction('Rejected')}
-              disabled={updating}
-            >
-              {updating ? 'Rejecting...' : 'Reject'}
-            </Button>
-          </div>
-        )}
+      <hr className="my-6" />
 
-        <Button
-          variant="secondary"
-          className="mt-3"
-          onClick={() => navigate('/leave-approval')}
+      <div>
+        <label className="block mb-2 font-medium">Note to Employee (optional):</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={3}
+          className="w-full border border-gray-300 p-2 rounded"
+          placeholder="Write a note explaining your decision..."
+        />
+      </div>
+
+      <div className="mt-4 flex gap-4">
+        <button
+          onClick={() => handleAction('Rejected')}
+          disabled={loading}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
         >
-          Back
-        </Button>
-      </Card>
+          Reject
+        </button>
+        <button
+          onClick={() => handleAction('Approved')}
+          disabled={loading}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Approve
+        </button>
+      </div>
     </div>
   );
 };
 
-export default LeaveRequestDetail;
+export default LeavesApprovalDetail;

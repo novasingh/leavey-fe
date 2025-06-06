@@ -12,6 +12,7 @@ import {
 import { getLeave } from '../../services/leaveService';
 import { getEvents } from '../../services/eventService';
 import { useTranslation } from 'react-i18next';
+// import authService from '../../services/authService';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -23,7 +24,7 @@ import 'tippy.js/dist/tippy.css';
 
 import './Dashboard.scss';
 
-const Dashboard = () => {
+const EmployeeDashboard = () => {
   const { t } = useTranslation();
 
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -261,4 +262,4 @@ const Dashboard = () => {
 
 };
 
-export default Dashboard;
+export default EmployeeDashboard;

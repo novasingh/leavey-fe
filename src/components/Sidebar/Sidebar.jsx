@@ -22,8 +22,8 @@ const Sidebar = () => {
 
   // Define all menu items with their required permissions
   const allMenuItems = [
-    { path: '/dashboard', icon: <MdSpaceDashboard />, textKey: 'sidebar.dashboard', permission: 'dashboard' }, 
-    { path: '/leave-requests', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },    { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' }, 
+    { path: '/leave-requests', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },    
+    { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' }, 
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' }, 
     { path: '/employees', icon: <FaUsers />, textKey: 'sidebar.employees', permission: 'employees' },
     { path: '/department', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' }, 
@@ -33,17 +33,26 @@ const Sidebar = () => {
     { path: '/faq', icon: <BsFillChatLeftQuoteFill />, textKey: 'sidebar.faq', permission: 'faq' }, 
   ];
 
+  const getDashboardPath = () => {
+    switch (userRole) {
+      case 'Admin': return '/dashboard/admin';
+      case 'Manager': return '/dashboard/manager';
+      case 'Employee': return '/dashboard/employee';
+      //default: return '/dashboard/employee'; // fallback
+    }
+  };
+
   // Filter menu items based on user permissions
   const getFilteredMenuItems = () => {
-    if (!userRole || !userPermissions.length) {
-      // If no role or permissions, show default items
-      return allMenuItems.filter(item => ['dashboard', 'my-leaves', 'calendar', 'faq'].includes(item.permission));
-    }
+    const dashboardItem = {
+      path: getDashboardPath(), // ← uses the dynamic function
+      icon: <MdSpaceDashboard />,
+      textKey: 'sidebar.dashboard',
+      permission: 'dashboard'
+    };
 
-    console.log('userPermissions:', userPermissions)
-
-    // Filter based on user permissions
-    return allMenuItems.filter(item => userPermissions.includes(item.permission));
+    const filtered = allMenuItems.filter(item => userPermissions.includes(item.permission));
+    return [dashboardItem, ...filtered]; // dashboard always comes first
   };
 
   const menuItems = getFilteredMenuItems();
