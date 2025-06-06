@@ -23,7 +23,9 @@ const Login = () => {
     if (authService.isAuthenticated()) {
       navigate('/dashboard', { replace: true });
     }
-  }, [navigate]);  const handleSubmit = async (e) => {
+  }, [navigate]);  
+  
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -31,7 +33,10 @@ const Login = () => {
       const result = await authService.login(email, password);
       
       if (result.success) {
-        navigate('/dashboard');
+        const userName = result.user?.first_name || result.user?.username;
+        console.log("Logged in as", userName);
+
+        navigate('/dashboard', { replace: true});
       } else {
         setError(result.error);
       }

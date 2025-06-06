@@ -23,7 +23,7 @@ const Sidebar = () => {
   // Define all menu items with their required permissions
   const allMenuItems = [
     { path: '/dashboard', icon: <MdSpaceDashboard />, textKey: 'sidebar.dashboard', permission: 'dashboard' }, 
-    { path: '/my-leaves', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },    { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' }, 
+    { path: '/leave-requests', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },    { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' }, 
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' }, 
     { path: '/employees', icon: <FaUsers />, textKey: 'sidebar.employees', permission: 'employees' },
     { path: '/department', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' }, 

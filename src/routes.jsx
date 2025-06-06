@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { ForgotPassword, ForgotPasswordConfirmation, Login, PasswordReset, UserVerification } from './pages/auth'
 import { Dashboard } from './pages/dashboard';
 import { Calendar } from './pages/calendar';
-import { MyLeaves } from './pages/my-leaves';
 import { Team } from './pages/team';
 import { LeaveRequests } from './pages/leave-requests';
 import { Reports } from './pages/reports';
@@ -39,8 +38,9 @@ const AppRoutes = () => (
     <Route path="/password-reset" element={<PasswordReset />} />
     <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}    <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} />
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
-    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} /> 
+
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
+    
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
     <Route path="/department" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
