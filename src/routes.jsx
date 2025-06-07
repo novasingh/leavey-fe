@@ -39,10 +39,10 @@ const AppRoutes = () => (
     <Route path="/password-reset" element={<PasswordReset />} />
     <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}    <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} />
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
-    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} /> 
+    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
-    <Route path="/department" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
+    <Route path="/departments" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
     <Route path="/employees" element={<ProtectedMainLayoutRoute><Employees /></ProtectedMainLayoutRoute>} />
@@ -51,7 +51,7 @@ const AppRoutes = () => (
     <Route path="/reports" element={<ProtectedMainLayoutRoute><Reports /></ProtectedMainLayoutRoute>} />
     <Route path="/documents" element={<ProtectedMainLayoutRoute><Documents /></ProtectedMainLayoutRoute>} />
     <Route path="/settings" element={<ProtectedMainLayoutRoute><Settings /></ProtectedMainLayoutRoute>} />
-    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />  
+    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />
     <Route path="/profile" element={<ProtectedMainLayoutRoute><Profile /></ProtectedMainLayoutRoute>} />
     <Route path="/notifications" element={<ProtectedMainLayoutRoute><Notifications /></ProtectedMainLayoutRoute>} />
     <Route path="/*" element={<ProtectedMainLayoutRoute><NotFound title="Page Not Found" /></ProtectedMainLayoutRoute>} />
