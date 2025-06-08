@@ -27,6 +27,7 @@ const Sidebar = () => {
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' },
     { path: '/employees', icon: <FaUsers />, textKey: 'sidebar.employees', permission: 'employees' },
     { path: '/department', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' },
+    { path: '/departments', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' },
     { path: '/role', icon: <FaUserTie />, textKey: 'sidebar.role', permission: 'role' },
     { path: '/leave-setting', icon: <FaCog />, textKey: 'sidebar.leaveSetting', permission: 'leave-setting' },
     { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar', permission: 'calender' },
@@ -39,6 +40,7 @@ const Sidebar = () => {
       case 'Manager': return '/dashboard/manager';
       case 'Employee': return '/dashboard/employee';
       default: return '/dashboard/employee'; // fallback
+      //default: return '/dashboard/employee'; // fallback
     }
   };
 

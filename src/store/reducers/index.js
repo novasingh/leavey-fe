@@ -1,10 +1,9 @@
-// Combine all reducers here
 import { combineReducers } from '@reduxjs/toolkit'
 
-// Example: import userReducer from './userSlice'
+import placeholderReducer from '../placeholderSlice';
 
 const rootReducer = combineReducers({
-  // user: userReducer,
+  placeholder: placeholderReducer,
 })
 
-export default rootReducer
+export default rootReducer;
