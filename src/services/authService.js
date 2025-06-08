@@ -3,7 +3,7 @@ import api from './axios';
 const AUTH_STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
-  USER: 'user'
+  USER: 'user',
 };
 
 class AuthService {
@@ -11,12 +11,12 @@ class AuthService {
     try {
       const response = await api.post('/auth/login/', {
         email,
-        password
+        password,
       });
 
       const { access, refresh, user } = response.data;
 
-      // Store tokens and user info
+      // Save tokens and user to localStorage
       localStorage.setItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN, access);
       localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, refresh);
       localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
@@ -25,28 +25,33 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || error.response?.data?.detail || 'Login failed'
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          'Login failed. Please try again.',
       };
     }
   }
 
   async forgotPassword(email) {
     try {
-      const response = await api.post('/auth/forgot-password/', {
-        email
-      });
+      const response = await api.post('/auth/forgot-password/', { email });
 
-      return { 
-        success: true, 
-        message: response.data?.message || 'Password reset link has been sent to your email'
+      return {
+        success: true,
+        message:
+          response.data?.message ||
+          'Password reset link has been sent to your email',
       };
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || 
-               error.response?.data?.detail || 
-               error.response?.data?.email?.[0] ||
-               'Failed to send password reset email'
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.response?.data?.email?.[0] ||
+          'Failed to send password reset email',
       };
     }
   }
@@ -56,43 +61,46 @@ class AuthService {
       const response = await api.post('/auth/reset-password/', {
         token,
         password,
-        confirm_password: confirmPassword
+        confirm_password: confirmPassword,
       });
 
-      return { 
-        success: true, 
-        message: response.data?.message || 'Password has been reset successfully'
+      return {
+        success: true,
+        message:
+          response.data?.message || 'Password has been reset successfully',
       };
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || 
-               error.response?.data?.detail ||
-               error.response?.data?.password?.[0] ||
-               error.response?.data?.token?.[0] ||
-               'Failed to reset password'
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.response?.data?.password?.[0] ||
+          error.response?.data?.token?.[0] ||
+          'Failed to reset password',
       };
     }
   }
 
   logout() {
-    localStorage.removeItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
+    Object.values(AUTH_STORAGE_KEYS).forEach((key) =>
+      localStorage.removeItem(key)
+    );
   }
 
   isAuthenticated() {
-    const token = localStorage.getItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
-    const user = localStorage.getItem(AUTH_STORAGE_KEYS.USER);
-    return !!(token && user);
-  }
+  // Also check if tokens exist AND user is parsed properly
+  const access = this.getAccessToken();
+  const user = this.getUser();
+  return !!access && !!user;
+}
 
   getUser() {
-    const userStr = localStorage.getItem(AUTH_STORAGE_KEYS.USER);
     try {
+      const userStr = localStorage.getItem(AUTH_STORAGE_KEYS.USER);
       return userStr ? JSON.parse(userStr) : null;
     } catch (error) {
-      console.error('Error parsing user data:', error);
+      console.error('Error parsing user from localStorage:', error);
       return null;
     }
   }
@@ -100,22 +108,47 @@ class AuthService {
   getAccessToken() {
     return localStorage.getItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
   }
+
   getRefreshToken() {
     return localStorage.getItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN);
   }
 
   getUserPermissions() {
-    const user = this.getUser();
-    return user?.role_details?.permissions || [];
+    return this.getUser()?.role_details?.permissions || [];
   }
 
   hasPermission(permission) {
-    const permissions = this.getUserPermissions();
-    return permissions.includes(permission);
+    return this.getUserPermissions().includes(permission);
   }
+
   getUserRole() {
-    const user = this.getUser();
-    return user?.role_details?.name || null;
+    return this.getUser()?.role_details?.name || null;
+  }
+
+  // Optional: Refresh token method if using token expiry logic
+  async refreshToken() {
+    try {
+      const refresh = this.getRefreshToken();
+      if (!refresh) throw new Error('No refresh token available');
+
+      const response = await api.post('/auth/token/refresh/', {
+        refresh,
+      });
+
+      const { access } = response.data;
+      localStorage.setItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN, access);
+
+      return { success: true, access };
+    } catch (error) {
+      this.logout(); // Optional: logout on refresh failure
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          error.message ||
+          'Failed to refresh session',
+      };
+    }
   }
 }
 

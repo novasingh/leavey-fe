@@ -7,7 +7,7 @@ import AdminDashboard from './pages/dashboard/AdminDashboard';
 import { Calendar } from './pages/calendar';
 import { Team } from './pages/team';
 import { LeaveRequests } from './pages/leave-requests';
-import LeavesApprovalDetail from './pages/leaves-approval/LeavesApprovalDetail'; 
+import LeavesApprovalDetail from './pages/leaves-approval/LeavesApprovalDetail';
 import { Reports } from './pages/reports';
 import { Documents } from './pages/documents';
 import { Settings } from './pages/settings';
@@ -20,7 +20,7 @@ import { Department } from './pages/department';
 import { Role } from './pages/role';
 import { LeaveSetting } from './pages/leave-setting';
 import { Employees } from './pages/employees';
-import { MyLeaves } from   './pages/my-leaves';
+import { MyLeaves } from './pages/my-leaves';
 import MainLayout from './layouts/MainLayout'
 import NotFound from './pages/status/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -41,14 +41,19 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
-    <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}    
+    <Route path="/user-verification" element={<UserVerification />} /> 
+        {/* Dashboard Routes */}
+    <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />   
+    {/* Protected Routes with MainLayout */} 
     {/* <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} /> */}
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
-
+    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
-    
+
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
-    <Route path="/department" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
+    <Route path="/departments" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
     <Route path="/employees" element={<ProtectedMainLayoutRoute><Employees /></ProtectedMainLayoutRoute>} />
@@ -59,16 +64,10 @@ const AppRoutes = () => (
     <Route path="/reports" element={<ProtectedMainLayoutRoute><Reports /></ProtectedMainLayoutRoute>} />
     <Route path="/documents" element={<ProtectedMainLayoutRoute><Documents /></ProtectedMainLayoutRoute>} />
     <Route path="/settings" element={<ProtectedMainLayoutRoute><Settings /></ProtectedMainLayoutRoute>} />
-    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />  
+    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />
     <Route path="/profile" element={<ProtectedMainLayoutRoute><Profile /></ProtectedMainLayoutRoute>} />
     <Route path="/notifications" element={<ProtectedMainLayoutRoute><Notifications /></ProtectedMainLayoutRoute>} />
     <Route path="/*" element={<ProtectedMainLayoutRoute><NotFound title="Page Not Found" /></ProtectedMainLayoutRoute>} />
-
-    {/* Root and Not Found Routes */}
-    {/* Dashboard Routes */}
-    <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
-    <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
-    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />
     {/* Root and Not Found Routes */}
     {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
     <Route path="*" element={<NotFound />} /> {/* Catch-all for not found pages */}

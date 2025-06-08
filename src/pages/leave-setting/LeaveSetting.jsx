@@ -1,111 +1,213 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
-const leaveTypes = [
-  { icon: '🌴', name: 'Annual Leave', accrual: '1.5 days/month', paid: 'Paid', max: '30 days', carry: 'Yes (up to 10 days)' },
-  { icon: '🤒', name: 'Sick Leave', accrual: '1 day/month', paid: 'Paid', max: '15 days', carry: 'No' },
-  { icon: '🏖️', name: 'Casual Leave', accrual: '0.5 day/month', paid: 'Paid', max: '12 days', carry: 'No' },
-  { icon: '🤰', name: 'Maternity Leave', accrual: 'Lump sum (90 days)', paid: 'Paid', max: '90 days', carry: 'No' },
-  { icon: '👨‍🍼', name: 'Paternity Leave', accrual: 'Lump sum (15 days)', paid: 'Paid', max: '15 days', carry: 'No' },
-  { icon: '🕯️', name: 'Bereavement Leave', accrual: '5 days/year', paid: 'Paid', max: '5 days', carry: 'No' },
-  { icon: '💍', name: 'Marriage Leave', accrual: '3 days/event', paid: 'Paid', max: '3 days', carry: 'No' },
-  { icon: '🚫', name: 'Unpaid Leave', accrual: 'As requested', paid: 'Unpaid', max: 'Unlimited', carry: 'No' },
-  { icon: '🕒', name: 'Compensatory Off', accrual: 'Based on overtime', paid: 'Paid', max: '10 days', carry: 'No (use within 3 months)' },
-  { icon: '🎉', name: 'Public Holiday', accrual: 'As per calendar', paid: 'Paid', max: 'N/A', carry: 'N/A' },
-];
+// Import all the necessary service functions
+import { getLeaveTypes, getLeaveSettings, updateLeaveSettings, deleteLeaveTypes } from '../../services/leaveService';
+
+// Import all the modals
+import AddLeaveTypeModal from './AddLeaveTypeModal';
+import EditLeaveTypeModal from './EditLeaveTypeModal';
+import DeleteConfirmationModal from '../../pages/modal/DeleteConfirmationModal';
+import SuccessModal from '../../pages/modal/SuccessModal';
 
 const LeaveSetting = () => {
-  const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '17:00', flexible: false });
-  const [workingDays, setWorkingDays] = useState({ weekday: true, weekend: false });
-  const [cycleType, setCycleType] = useState('annual');
+  // State for the Leave Types table
+  const [leaveTypes, setLeaveTypes] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [leaveTypeToEdit, setLeaveTypeToEdit] = useState(null);
+
+  // State for the Delete Confirmation and Success modals
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [leaveTypeToDelete, setLeaveTypeToDelete] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // State for the Leave Configuration Form
+  const [settings, setSettings] = useState({
+    working_hours_start: '09:00',
+    working_hours_end: '17:00',
+    is_flexible_hours_enabled: false,
+    is_weekday_workday: true,
+    is_weekend_workday: false,
+    cycle_type: 'annual',
+  });
+
+  const fetchLeaveData = useCallback(async () => {
+    try {
+      const typesData = await getLeaveTypes();
+      const settingsData = await getLeaveSettings();
+      setLeaveTypes(typesData);
+      setSettings(settingsData);
+    } catch (error) {
+      console.error("Error fetching leave settings:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaveData();
+  }, [fetchLeaveData]);
+
+  const handleSettingsChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setSettings(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleConfigSubmit = async () => {
+    try {
+      await updateLeaveSettings(settings);
+      setSuccessMessage('Settings saved successfully!');
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      alert('Failed to save settings.');
+    }
+  };
+
+  const handleSuccess = (message) => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+    fetchLeaveData();
+  };
+
+  const handleEditClick = (leaveType) => {
+    setLeaveTypeToEdit(leaveType);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteClick = (leaveType) => {
+    setLeaveTypeToDelete(leaveType);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!leaveTypeToDelete) return;
+    try {
+      await deleteLeaveTypes(leaveTypeToDelete.leave_type_id);
+      setShowDeleteModal(false);
+      setSuccessMessage('Leave type deleted successfully');
+      setShowSuccessModal(true);
+      fetchLeaveData();
+    } catch (err) {
+      console.error("Failed to delete leave type", err);
+      alert("Failed to delete leave type.");
+    }
+  };
 
   return (
     <Container fluid className="p-4">
+      <Row className="align-items-center mb-3">
+        <Col>
+          <h3 className="mb-0 fw-bold">Leave Setting</h3>
+          <div className="text-muted" style={{ fontSize: '0.95rem' }}>settings / Leave Setting</div>
+        </Col>
+        <Col xs="auto">
+          <button className="btn btn-primary" style={{ borderRadius: 20, fontWeight: 500, padding: '8px 24px' }} onClick={() => setShowAddModal(true)}>
+            <FaPlus className="me-2" /> Add New Leave
+          </button>
+        </Col>
+      </Row>
+
       <Row>
         <Col>
           <Card>
-            <Card.Header className="d-flex align-items-center justify-content-between">
-              <div>
-                <span className="fw-bold fs-4">Leave Setting</span>
-                <div className="text-muted" style={{ fontSize: '0.95rem' }}>settings / Leave Setting</div>
-              </div>
-              <Button variant="outline-primary" className="d-flex align-items-center" style={{ borderRadius: 20 }}>
-                <FaPlus className="me-2" /> Add New Leave
-              </Button>
-            </Card.Header>
             <Card.Body>
-              <div style={{ border: '1px dashed #b3b3b3', borderRadius: 8, padding: 0, marginBottom: 24 }}>
-                <Table responsive hover className="mb-0" style={{ minWidth: 900 }}>
-                  <thead style={{ background: '#f8f9fa' }}>
+              <div className="table-responsive">
+                <Table className="table-borderless align-middle mb-0 text-center" style={{ minWidth: 900 }}>
+                  <thead>
                     <tr>
                       <th>Leave Types</th>
-                      <th>Accrual Rate</th>
-                      <th>Paid/Unpaid</th>
-                      <th>Max Balance</th>
-                      <th>Carry Forward</th>
+                      <th>Days per Year</th>
+                      <th>Description</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {leaveTypes.map((lt, idx) => (
-                      <tr key={lt.name}>
-                        <td><span style={{ fontSize: 18 }}>{lt.icon}</span> <span className="fw-semibold ms-1">{lt.name}</span></td>
-                        <td>{lt.accrual}</td>
-                        <td>{lt.paid}</td>
-                        <td>{lt.max}</td>
-                        <td>{lt.carry}</td>
+                    {leaveTypes.map((lt) => (
+                      <tr key={lt.leave_type_id}>
+                        <td><span className="fw-semibold ms-1">{lt.name}</span></td>
+                        <td>{lt.days}</td>
+                        <td>{lt.description}</td>
                         <td>
-                          <Button size="sm" variant="success" className="me-2"><FaEdit className="me-1" />Edit</Button>
-                          <Button size="sm" variant="danger"><FaTrash className="me-1" />Delete</Button>
+                          <Button size="sm" variant="success" className="me-2 custom-btn" onClick={() => handleEditClick(lt)}>Edit</Button>
+                          <Button size="sm" variant="danger" className="custom-btn" onClick={() => handleDeleteClick(lt)}>Delete</Button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </Table>
               </div>
-              <Card className="mb-0" style={{ border: '1px dashed #b3b3b3', borderRadius: 8 }}>
-                <Card.Body>
-                  <div className="fw-bold mb-3 fs-5">Leave Cycle Configuration</div>
-                  <Row>
-                    <Col md={4} className="mb-3 mb-md-0">
-                      <div className="fw-semibold mb-2">Working Hours</div>
-                      <Form>
-                        <Form.Check type="radio" label="All day" name="timeType" id="allday" checked={false} disabled className="mb-2" />
-                        <Form.Check type="radio" label="Time" name="timeType" id="timerange" checked readOnly className="mb-2" />
-                        <Form.Check type="radio" label="Range" name="timeType" id="range" checked={false} disabled className="mb-2" />
-                        <InputGroup className="mb-2">
-                          <Form.Control type="time" value={workingHours.start} onChange={e => setWorkingHours({ ...workingHours, start: e.target.value })} style={{ maxWidth: 110 }} />
-                          <InputGroup.Text>to</InputGroup.Text>
-                          <Form.Control type="time" value={workingHours.end} onChange={e => setWorkingHours({ ...workingHours, end: e.target.value })} style={{ maxWidth: 110 }} />
-                        </InputGroup>
-                        <Form.Check type="checkbox" label="Enable Flexible Hours" checked={workingHours.flexible} onChange={e => setWorkingHours({ ...workingHours, flexible: e.target.checked })} />
-                      </Form>
-                    </Col>
-                    <Col md={4} className="mb-3 mb-md-0">
-                      <div className="fw-semibold mb-2">Working Days</div>
-                      <Form>
-                        <Form.Check type="checkbox" label="Weekday : Monday - Friday" checked={workingDays.weekday} onChange={e => setWorkingDays({ ...workingDays, weekday: e.target.checked })} className="mb-2" />
-                        <Form.Check type="checkbox" label="Weekend : Saturday - Sunday" checked={workingDays.weekend} onChange={e => setWorkingDays({ ...workingDays, weekend: e.target.checked })} />
-                      </Form>
-                    </Col>
-                    <Col md={4}>
-                      <div className="fw-semibold mb-2">Cycle Type</div>
-                      <Form>
-                        <Form.Check type="radio" label="Annual cycle: January - December" name="cycleType" id="annual" checked={cycleType === 'annual'} onChange={() => setCycleType('annual')} className="mb-2" />
-                        <Form.Check type="radio" label="Employee Join Date Anniversary" name="cycleType" id="join" checked={cycleType === 'join'} onChange={() => setCycleType('join')} />
-                      </Form>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row className="mt-4">
+        <Col>
+          <Card>
+            <Card.Body>
+              <div className="fw-bold mb-3 fs-5">Leave Cycle Configuration</div>
+              <Row>
+                <Col md={4} className="mb-3 mb-md-0">
+                  <div className="fw-semibold mb-2">Working Hours</div>
+                  <Form>
+                    <InputGroup className="mb-2">
+                      <Form.Control type="time" name="working_hours_start" value={settings.working_hours_start} onChange={handleSettingsChange} style={{ maxWidth: 110 }} />
+                      <InputGroup.Text>to</InputGroup.Text>
+                      <Form.Control type="time" name="working_hours_end" value={settings.working_hours_end} onChange={handleSettingsChange} style={{ maxWidth: 110 }} />
+                    </InputGroup>
+                    <Form.Check type="checkbox" name="is_flexible_hours_enabled" label="Enable Flexible Hours" checked={settings.is_flexible_hours_enabled} onChange={handleSettingsChange} />
+                  </Form>
+                </Col>
+                <Col md={4} className="mb-3 mb-md-0">
+                  <div className="fw-semibold mb-2">Working Days</div>
+                  <Form>
+                    <Form.Check type="checkbox" name="is_weekday_workday" label="Weekday : Monday - Friday" checked={settings.is_weekday_workday} onChange={handleSettingsChange} className="mb-2" />
+                    <Form.Check type="checkbox" name="is_weekend_workday" label="Weekend : Saturday - Sunday" checked={settings.is_weekend_workday} onChange={handleSettingsChange} />
+                  </Form>
+                </Col>
+                <Col md={4}>
+                  <div className="fw-semibold mb-2">Cycle Type</div>
+                  <Form>
+                    <Form.Check type="radio" value="annual" label="Annual cycle: January - December" name="cycle_type" checked={settings.cycle_type === 'annual'} onChange={handleSettingsChange} className="mb-2" />
+                    <Form.Check type="radio" value="join_date" label="Employee Join Date Anniversary" name="cycle_type" checked={settings.cycle_type === 'join_date'} onChange={handleSettingsChange} />
+                  </Form>
+                </Col>
+              </Row>
               <div className="d-flex justify-content-end mt-4">
-                <Button style={{ borderRadius: 20, padding: '8px 32px' }} variant="primary">Save</Button>
+                <Button style={{ borderRadius: 20, padding: '8px 32px' }} variant="primary" onClick={handleConfigSubmit}>Save Changes</Button>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
+      <AddLeaveTypeModal
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onLeaveTypeAdded={() => handleSuccess("Leave Type added successfully")}
+      />
+      <EditLeaveTypeModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        leaveTypeToEdit={leaveTypeToEdit}
+        onLeaveTypeUpdated={() => handleSuccess("Leave Type updated successfully")}
+      />
+      <SuccessModal
+        show={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message={successMessage}
+      />
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Leave Type"
+        message={`Are you sure you want to delete the "${leaveTypeToDelete?.name}" leave type?`}
+      />
     </Container>
   );
 };
