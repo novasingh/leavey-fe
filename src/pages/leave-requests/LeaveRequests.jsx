@@ -84,7 +84,7 @@ const LeaveRequest = () => {
             onClick={() => {
               setShowSuccessModal(false);
               setFormData({ leave_type: '', start_date: '', end_date: '', message: '', attachment: null });
-              navigate('/dashboard');
+              navigate('/dashboard/employee');
             }}
           >OK</button>
         </div>

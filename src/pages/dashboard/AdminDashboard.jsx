@@ -6,8 +6,8 @@ import { FaCalendarAlt, FaUserFriends, FaFileAlt, FaChartBar, FaEllipsisV } from
 import authService from '../../services/authService';
 import { Card, Table, StatusBadge } from '../../components';
 import './Dashboard.scss';
-import { getDepartments } from '../../services/departmentService';
 import { getEvents } from '../../services/eventService';
+import { getDepartments } from '../../services/departmentService';
 import { getLeave, getLeaveTypes } from '../../services/leaveService';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -16,7 +16,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import LeaveBarChart from '../../components/Chart/LeaveBarChart';
-
 
 const AdminDashboard = () => {
 
@@ -29,7 +28,6 @@ const AdminDashboard = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [leaveType, setLeaveTypes] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
 
   useEffect(() => {
     // Fetch user info on mount
@@ -103,6 +101,7 @@ const AdminDashboard = () => {
     }
     fetchLeaveRequests();
   }, []);
+
   const years = [...new Set(leaveRequests.map(l => new Date(l.created_at).getFullYear()))];
   const depts = [...new Set(leaveRequests.map(l => l.department))];
 
@@ -243,7 +242,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-
                   {/* Department Info */}
                   <div className="ms-3">
                     <h5 className="fw-bold mb-1">{dept.name}</h5>
@@ -276,24 +274,24 @@ const AdminDashboard = () => {
 
             {/* Content */}
             <Card>
-<div className="p-4">
-      <div className="flex gap-4 mb-4">
-        <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} className="border p-2">
-          <option value="">All Years</option>
-          {years.map(year => <option key={year} value={year}>{year}</option>)}
-        </select>
-        <select value={departments} onChange={e => setDepartments(e.target.value)} className="border p-2">
-          <option value="">All Departments</option>
-          {depts.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
-      </div>
+              <div className="p-4">
+                <div className="flex gap-4 mb-4">
+                  <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} className="border p-2">
+                    <option value="">All Years</option>
+                    {years.map(year => <option key={year} value={year}>{year}</option>)}
+                  </select>
+                  <select value={departments} onChange={e => setDepartments(e.target.value)} className="border p-2">
+                    <option value="">All Departments</option>
+                    {depts.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
 
-      <LeaveBarChart
-        leaveRequests={leaveRequests}
-        selectedYear={selectedYear}
-        selectedDepartment={departments}
-      />
-    </div>
+                <LeaveBarChart
+                  leaveRequests={leaveRequests}
+                  selectedYear={selectedYear}
+                  selectedDepartment={departments}
+                />
+              </div>
             </Card>
           </div>
         </Col>
@@ -318,14 +316,14 @@ const AdminDashboard = () => {
                 {leaveType.length > 0 ? (
                   leaveType.map((leave, index) => {
                     const badgeColors = {
-                      'Annual Leave': '#9b59b6',     // Purple
-                      'Sick Leave': '#f1c40f',       // Yellow
-                      'Maternity Leave': '#3498db',  // Blue
-                      'Marriage Leave': '#ff69b4',   // Pink
-                      'Emergency Leave': '#e74c3c',  // Red
-                      'Other': '#2ecc71'             // Green
+                      'Annual Leave': '#4D49B3',     // Purple
+                      'Sick Leave': '#FFB900',       // Yellow
+                      'Maternity Leave': '#0041C2',  // Blue
+                      'Marriage Leave': '#CD60AE',   // Pink
+                      'Emergency Leave': '#C31818',  // Red
+                      'Others': '#00905F'             // Green
                     };
-                    const badgeColor = badgeColors[leave.name] || '#bdc3c7'; // Default gray if not matched
+                    const badgeColor = badgeColors[leave.name] || '#00905F'; // Default gray if not matched
                     return (
                       <div key={index} className="event-item d-flex align-items-center mb-2">
                         <span
