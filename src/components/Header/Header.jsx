@@ -26,17 +26,36 @@ const Header = () => {
     <header className="app-header px-3">
       <Navbar expand="lg" className="p-0 align-items-center">
         <div className="navbar-left d-flex align-items-center">
-          <Navbar.Brand href="/dashboard" className="d-flex align-items-center me-0">
+          <Navbar.Brand
+            href={
+              userRole === 'Admin'
+                ? '/dashboard/admin'
+                : userRole === 'Manager'
+                  ? '/dashboard/manager'
+                  : userRole === 'Employee'
+                    ? '/dashboard/employee'
+                    : '/dashboard'
+            }
+            className="d-flex align-items-center me-0"
+          >
             <img src={logo} alt="Leavey Logo" className="header-logo-img me-2" />
-            <span className="header-logo-text">{userRole === 'Admin' ? t('header.forAdmin')  : userRole === 'Manager' ? t('header.forManager')   : userRole === 'Employee' ?  t('header.forEmployee') : ''}</span>
+            <span className="header-logo-text">
+              {userRole === 'Admin'
+                ? t('header.forAdmin')
+                : userRole === 'Manager'
+                  ? t('header.forManager')
+                  : userRole === 'Employee'
+                    ? t('header.forEmployee')
+                    : ''}
+            </span>
           </Navbar.Brand>
-        </div> 
+        </div>
 
         <Nav className="ms-auto header-nav align-items-center">
           {/* Language Switcher */}
           <Dropdown align="end" className="me-2">
             <Dropdown.Toggle variant="outline-secondary" size="sm" id="lang-switch">
-              {i18n.language === 'en' && t('header.lang.enShort')} 
+              {i18n.language === 'en' && t('header.lang.enShort')}
               {i18n.language === 'ms' && t('header.lang.msShort')}
               {i18n.language === 'zh' && t('header.lang.zhShort')}
             </Dropdown.Toggle>
@@ -63,7 +82,7 @@ const Header = () => {
                 <div className="notification-item">
                   <div className="notification-content">
                     <p className="mb-0">{t('header.notifications.sample.leaveApproved')}</p> {/* Changed */}
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: '2 hours'})}</small> {/* Changed */}
+                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: '2 hours' })}</small> {/* Changed */}
                   </div>
                 </div>
               </Dropdown.Item>
@@ -71,7 +90,7 @@ const Header = () => {
                 <div className="notification-item">
                   <div className="notification-content">
                     <p className="mb-0">{t('header.notifications.sample.newTeamMember')}</p> {/* Changed */}
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: 'Yesterday'})}</small> {/* Changed */}
+                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: 'Yesterday' })}</small> {/* Changed */}
                   </div>
                 </div>
               </Dropdown.Item>

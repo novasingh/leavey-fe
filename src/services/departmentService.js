@@ -27,3 +27,7 @@ export const getManagers = async () => {
     const res = await api.get('/managers/');
     return res.data;
 };
+
+
+
+

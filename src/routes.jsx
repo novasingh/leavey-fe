@@ -41,10 +41,15 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
-    <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}
+    <Route path="/user-verification" element={<UserVerification />} /> 
+        {/* Dashboard Routes */}
+    <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />   
+    {/* Protected Routes with MainLayout */} 
     {/* <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} /> */}
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
-
+    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
 
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
@@ -63,12 +68,6 @@ const AppRoutes = () => (
     <Route path="/profile" element={<ProtectedMainLayoutRoute><Profile /></ProtectedMainLayoutRoute>} />
     <Route path="/notifications" element={<ProtectedMainLayoutRoute><Notifications /></ProtectedMainLayoutRoute>} />
     <Route path="/*" element={<ProtectedMainLayoutRoute><NotFound title="Page Not Found" /></ProtectedMainLayoutRoute>} />
-
-    {/* Root and Not Found Routes */}
-    {/* Dashboard Routes */}
-    <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
-    <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
-    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />
     {/* Root and Not Found Routes */}
     {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
     <Route path="*" element={<NotFound />} /> {/* Catch-all for not found pages */}
