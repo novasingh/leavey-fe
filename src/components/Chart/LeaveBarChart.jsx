@@ -1,71 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const LeaveBarChart = ({ leaveRequests, selectedYear, selectedDepartment }) => {
-  const [chartData, setChartData] = useState([]);
-
-  useEffect(() => {
-    if (!leaveRequests || leaveRequests.length === 0) return;
-
-    // Filter by year and department
-    const filtered = leaveRequests.filter(item => {
-      const year = new Date(item.created_at).getFullYear();
-      return (
-        (!selectedYear || year === parseInt(selectedYear)) &&
-        (!selectedDepartment || item.department === selectedDepartment)
-      );
-    });
-
-    // Initialize empty data structure
-    const dataPerMonth = months.map(month => ({
-      month,
-    }));
-
-    // Collect unique leave types
-    const leaveTypes = Array.from(new Set(filtered.map(l => l.leave_type_name)));
-
-    // Populate the data
-    filtered.forEach(item => {
-      const date = new Date(item.created_at);
-      const monthIndex = date.getMonth();
-      const leaveType = item.leave_type_name;
-
-      const monthEntry = dataPerMonth[monthIndex];
-      if (!monthEntry[leaveType]) {
-        monthEntry[leaveType] = 1;
-      } else {
-        monthEntry[leaveType] += 1;
+const LeaveBarChart = ({ departments }) => {
+  // departments: [{ name, total_employees }]
+  const data = {
+    labels: departments.map(d => d.name),
+    datasets: [
+      {
+        label: 'Total Employees',
+        data: departments.map(d => d.total_employees),
+        backgroundColor: [
+          '#4D49B3', '#CD60AE', '#C31818', '#00905F', '#FFB900', '#00B8D9', '#36A2EB', '#FF6384'
+        ],
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 40,
       }
-    });
+    ]
+  };
 
-    setChartData(dataPerMonth);
-  }, [leaveRequests, selectedYear, selectedDepartment]);
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#333', font: { weight: 'bold' } }
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#333' }
+      }
+    }
+  };
 
   return (
-    <div style={{ width: '100%', height: 400 }}>
-      <ResponsiveContainer>
-        <BarChart data={chartData}>
-          <XAxis dataKey="month" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Legend />
-          {chartData.length > 0 && Object.keys(chartData[0]).filter(k => k !== 'month').map((type, i) => (
-            <Bar
-              key={type}
-              dataKey={type}
-              stackId="a"
-              fill={['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c'][i % 5]}
-            />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+    <div style={{ width: '100%', minHeight: 320 }}>
+      <Bar data={data} options={options} />
     </div>
   );
 };

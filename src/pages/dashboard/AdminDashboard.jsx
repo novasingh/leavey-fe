@@ -258,41 +258,34 @@ const AdminDashboard = () => {
         )}
       </Row>
 
-
       {/* PUT CHART TO DISPLAY TYPES GA SI??!! */}
       <Row className="g-3">
         <Col lg={8}>
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-start">
               <div>
-                <h5 style={{ fontWeight: 'bold', marginBottom: 0 }}>Display CHART DISINI AYE!</h5>
+                <h5 style={{ fontWeight: 'bold', marginBottom: 0 }}>📊 Workforce Leave Overview!</h5>
                 <p style={{ marginBottom: '0.5rem', color: '#666' }}>
-                  Check ANIR ANJIR ANJIR
+                  Comparison of total employees per department
                 </p>
               </div>
             </div>
-
-            {/* Content */}
-            <Card>
-              <div className="p-4">
-                <div className="flex gap-4 mb-4">
-                  <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} className="border p-2">
-                    <option value="">All Years</option>
-                    {years.map(year => <option key={year} value={year}>{year}</option>)}
-                  </select>
-                  <select value={departments} onChange={e => setDepartments(e.target.value)} className="border p-2">
-                    <option value="">All Departments</option>
-                    {depts.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-
-                <LeaveBarChart
-                  leaveRequests={leaveRequests}
-                  selectedYear={selectedYear}
-                  selectedDepartment={departments}
-                />
+            <Card className="mb-3">
+              <div style={{ padding: 24 }}>
+                <LeaveBarChart departments={departments} />
               </div>
             </Card>
+            {/* Row for total employees and managers */}
+            <div className="d-flex gap-4 mt-2" style={{ fontWeight: 500, fontSize: 16 }}>
+              <div>
+                <span style={{ color: '#4D49B3' }}>Total Employees: </span>
+                {departments.reduce((sum, d) => sum + (d.total_employees || 0), 0)}
+              </div>
+              <div>
+                <span style={{ color: '#00905F' }}>Total Managers: </span>
+                {departments.filter(d => d.manager_name).length}
+              </div>
+            </div>
           </div>
         </Col>
 
