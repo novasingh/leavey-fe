@@ -3,21 +3,27 @@ import PropTypes from 'prop-types';
 import { Badge } from 'react-bootstrap';
 
 const StatusBadge = ({ status, mapping }) => {
+  const normalizedStatus = status?.toLowerCase();
+
   const defaultMapping = {
-    approved: { variant: 'success', label: 'Approved' },
-    pending: { variant: 'warning', label: 'Pending' },
-    rejected: { variant: 'danger', label: 'Rejected' },
-    completed: { variant: 'success', label: 'Completed' },
-    'in-progress': { variant: 'info', label: 'In Progress' },
-    active: { variant: 'success', label: 'Active' },
-    inactive: { variant: 'secondary', label: 'Inactive' },
+    approved: { variant: 'success' },
+    pending: { variant: 'warning' },
+    rejected: { variant: 'danger' },
+    completed: { variant: 'success' },
+    'in-progress': { variant: 'info' },
+    active: { variant: 'success' },
+    inactive: { variant: 'secondary' },
+    cancelled: { variant: 'warning' },
   };
 
-  const statusConfig = mapping ? mapping[status] : defaultMapping[status] || { variant: 'secondary', label: status };
+  const variant =
+    mapping?.[normalizedStatus]?.variant ||
+    defaultMapping?.[normalizedStatus]?.variant ||
+    'secondary';
 
   return (
-    <Badge bg={statusConfig.variant} className="status-badge">
-      {statusConfig.label}
+    <Badge bg={variant} className="status-badge">
+      {status}
     </Badge>
   );
 };

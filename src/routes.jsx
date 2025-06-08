@@ -1,6 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ForgotPassword, ForgotPasswordConfirmation, Login, PasswordReset, UserVerification } from './pages/auth'
-import { Dashboard } from './pages/dashboard';
+// import { Dashboard } from './pages/dashboard';
+import ManagerDashboard from './pages/dashboard/ManagerDashboard';
+import EmployeeDashboard from './pages/dashboard/EmployeeDashboard';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
 import { Calendar } from './pages/calendar';
 import { MyLeaves } from './pages/my-leaves';
 import { Team } from './pages/team';
@@ -37,9 +40,15 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
-    <Route path="/user-verification" element={<UserVerification />} />    {/* Protected Routes with MainLayout */}    <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/user-verification" element={<UserVerification />} /> 
+        {/* Dashboard Routes */}
+    <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
+    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />   
+    {/* Protected Routes with MainLayout */} 
+    {/* <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} /> */}
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
-    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} /> 
+    <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
     <Route path="/department" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
@@ -51,13 +60,12 @@ const AppRoutes = () => (
     <Route path="/reports" element={<ProtectedMainLayoutRoute><Reports /></ProtectedMainLayoutRoute>} />
     <Route path="/documents" element={<ProtectedMainLayoutRoute><Documents /></ProtectedMainLayoutRoute>} />
     <Route path="/settings" element={<ProtectedMainLayoutRoute><Settings /></ProtectedMainLayoutRoute>} />
-    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />  
+    <Route path="/faq" element={<ProtectedMainLayoutRoute><Faq /></ProtectedMainLayoutRoute>} />
     <Route path="/profile" element={<ProtectedMainLayoutRoute><Profile /></ProtectedMainLayoutRoute>} />
     <Route path="/notifications" element={<ProtectedMainLayoutRoute><Notifications /></ProtectedMainLayoutRoute>} />
     <Route path="/*" element={<ProtectedMainLayoutRoute><NotFound title="Page Not Found" /></ProtectedMainLayoutRoute>} />
-
     {/* Root and Not Found Routes */}
-    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
     <Route path="*" element={<NotFound />} /> {/* Catch-all for not found pages */}
   </Routes>
 )

@@ -18,29 +18,64 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Check if user is already authenticated
+  // Check if user is already authenticated on mount
   useEffect(() => {
     if (authService.isAuthenticated()) {
-      navigate('/dashboard', { replace: true });
+      const role = authService.getUserRole(); // e.g. "Admin", "Manager", "Employee"
+
+      switch (role) {
+        case 'Admin':
+          navigate('/dashboard/admin', { replace: true });
+          break;
+        case 'Manager':
+          navigate('/dashboard/manager', { replace: true });
+          break;
+        case 'Employee':
+          navigate('/dashboard/employee', { replace: true });
+          break;
+        default:
+          navigate('/dashboard/employee', { replace: true });
+      }
     }
-  }, [navigate]);  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  }, [navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
       const result = await authService.login(email, password);
-      
+
       if (result.success) {
-        navigate('/dashboard');
+        const userName = result.user?.first_name || result.user?.username;
+        console.log("Logged in as", userName);
+
+        const role = result.user?.role_details?.name;
+
+        switch (role) {
+          case 'Admin':
+            navigate('/dashboard/admin', { replace: true });
+            break;
+          case 'Manager':
+            navigate('/dashboard/manager', { replace: true });
+            break;
+          case 'Employee':
+            navigate('/dashboard/employee', { replace: true });
+            break;
+          default:
+            navigate('/dashboard/employee', { replace: true });
+            break;
+        }
       } else {
         setError(result.error);
       }
     } catch {
       setError(t('login.invalidCredentials'));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -51,7 +86,7 @@ const Login = () => {
     <BlankLayout>
       <Container fluid className="min-vh-100 p-0 position-relative" style={{ background: '#fff' }}> {/* Added position-relative */}
         {/* Language Switcher */}
-        <div style={{ background: 'white', borderRadius:'5px', position: 'absolute', top: '20px', right: '20px', zIndex: 1000 }}>
+        <div style={{ background: 'white', borderRadius: '5px', position: 'absolute', top: '20px', right: '20px', zIndex: 1000 }}>
           <Dropdown align="end">
             <Dropdown.Toggle variant="outline-secondary" size="sm" id="lang-switch-login">
               {i18n.language === 'en' && t('header.lang.enShort')}
@@ -101,7 +136,7 @@ const Login = () => {
                       />
                       <Button
                         variant="light"
-                        style={{border: '1px solid #dee2e6'}}
+                        style={{ border: '1px solid #dee2e6' }}
                         onClick={() => setShowPassword(v => !v)}
                         tabIndex={0}
                         aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')} // Changed
