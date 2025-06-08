@@ -60,11 +60,14 @@ export const addLeave = async (data) => {
 
 export const updateLeave = async (id, data) => {
     const token = localStorage.getItem('access_token');
-    const res = await api.put(`${LEAVE_REQUEST_URL}${id}/`, data, {
-        headers: { Authorization: `Bearer ${token}` }
+    const res = await api.patch(`${LEAVE_REQUEST_URL}${id}/`, data, {
+        headers: { Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json', }
+        
     });
     return res.data;
 };
+
 
 export const deleteLeave = async (id) => {
     const token = localStorage.getItem('access_token');
@@ -81,4 +84,6 @@ export const getLeaveById = async (id) => {
   });
   return res.data;
 };
+
+
 

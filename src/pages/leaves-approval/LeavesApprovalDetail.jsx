@@ -1,100 +1,177 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getLeave, updateLeave } from '../../services/leaveService'; // Adjust path as needed
+import { getLeaveById, updateLeave } from '../../services/leaveService';
+import './LeavesApproval.scss'; // Adjust path as needed
 
 const LeavesApprovalDetail = () => {
-  const { id } = useParams(); // leave-request ID
-  const navigate = useNavigate();
-  const [leave, setLeave] = useState(null);
-  const [note, setNote] = useState('');
-  const [loading, setLoading] = useState(false);
+    const { id } = useParams(); // leave-request ID
+    const navigate = useNavigate();
+    const [leave, setLeave] = useState(null);
+    const [note, setNote] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchLeave = async () => {
-      const data = await getLeave(id);
-      setLeave(data);
+    useEffect(() => {
+        const fetchLeave = async () => {
+            try {
+                const data = await getLeaveById(id);
+                console.log('Fetched leave data:', data); // DEBUG
+                setLeave(data);
+            } catch (error) {
+                console.error('Error fetching leave:', error);
+            }
+        };
+        fetchLeave();
+    }, [id]);
+
+    const handleAction = async (status) => {
+        setLoading(true);
+        try {
+            await updateLeave(id, { status, note });
+            alert(`Leave ${status}`);
+            navigate('/manager/leaves-approval'); // Redirect back to list
+        } catch (error) {
+            console.error('Update failed:', error?.response?.data || error.message);
+            alert('Error updating leave status.');
+        } finally {
+            setLoading(false);
+        }
     };
-    fetchLeave();
-  }, [id]);
 
-  const handleAction = async (status) => {
-    setLoading(true);
-    try {
-      await updateLeave(id, { status, note });
-      alert(`Leave ${status}`);
-      navigate('/manager/leaves-approval'); // Redirect back to list
-    } catch (error) {
-      console.error(error);
-      alert('Error updating leave status.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Helper to format date
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',  // Add this
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } catch (e) {
+            return dateString;
+        }
+    };
 
-  if (!leave) return <div>Loading leave request...</div>;
 
-  return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded">
-      <button onClick={() => navigate(-1)} className="text-blue-500 mb-4">&larr; Back</button>
-      <h2 className="text-2xl font-bold mb-4">Leave Request Details</h2>
+    if (!leave) return <div className="leave-page">Loading leave request...</div>;
 
-      <div className="space-y-2 text-gray-700">
-        <p><strong>Employee Name:</strong> {leave.user?.name || 'N/A'}</p>
-        <p><strong>Leave Type:</strong> {leave.leave_type?.name}</p>
-        <p><strong>From:</strong> {leave.start_date}</p>
-        <p><strong>To:</strong> {leave.end_date}</p>
-        <p><strong>Days:</strong> {leave.days}</p>
-        <p><strong>Status:</strong> 
-          <span className={`ml-2 px-2 py-1 rounded text-white text-sm ${
-            leave.status === 'Pending' ? 'bg-yellow-500' :
-            leave.status === 'Approved' ? 'bg-green-600' :
-            'bg-red-500'
-          }`}>
-            {leave.status}
-          </span>
-        </p>
-        {leave.message && <p><strong>Message:</strong> {leave.message}</p>}
-        {leave.attachment && (
-          <p>
-            <strong>Attachment:</strong> 
-            <a href={leave.attachment} target="_blank" rel="noopener noreferrer" className="text-blue-600 ml-2">
-              View Attachment
-            </a>
-          </p>
-        )}
-      </div>
+    return (
+        <div className="leave-page">
+            <button
+                onClick={() => navigate(-1)}
+                className="back-button"
+            >
+                &larr; Back
+            </button>
 
-      <hr className="my-6" />
+            <header className="leave-header">
+                <h2>Leave Request Details</h2>
+            </header>
 
-      <div>
-        <label className="block mb-2 font-medium">Note to Employee (optional):</label>
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={3}
-          className="w-full border border-gray-300 p-2 rounded"
-          placeholder="Write a note explaining your decision..."
-        />
-      </div>
+            <section className="leave-form-box">
+                {/* Row 1: Employee Name, Date Created */}
+                <div className="details-section-grid">
+                    <div>
+                        <strong>Employee Name</strong>
+                        <p>{leave.user?.name || leave.employee_name || 'N/A'}</p>
+                    </div>
+                    <div >
+                        <strong>Date Created</strong>
+                        <p>{formatDate(leave.created_at)}</p>
+                    </div>
+                </div>
 
-      <div className="mt-4 flex gap-4">
-        <button
-          onClick={() => handleAction('Rejected')}
-          disabled={loading}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-        >
-          Reject
-        </button>
-        <button
-          onClick={() => handleAction('Approved')}
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Approve
-        </button>
-      </div>
-    </div>
-  );
+                {/* Row 2: Leave Type, Start Date, End Date, Days, Status */}
+                <div className="details-section-grid">
+                    <div className="detail-item-box">
+                        <strong>Leave Type</strong>
+                        <p>{leave.leave_type?.name || leave.leave_type_name || 'N/A'}</p>
+                    </div>
+                    <div className="detail-item-box">
+                        <strong>Start Date</strong>
+                        <p>{formatDate(leave.start_date)}</p>
+                    </div>
+                    <div className="detail-item-box">
+                        <strong>End Date</strong>
+                        <p>{formatDate(leave.end_date)}</p>
+                    </div>
+                  </div>
+                  <div className="details-section-grid">
+                    <div className="detail-item-box">
+                        <strong>Days</strong>
+                        <p>{leave.days}</p>
+                    </div>
+                    <div className="detail-item-box">
+                        <strong>Status</strong>
+                        <span className={`status-badge ${
+                            leave.status === 'Pending' ? 'bg-yellow-500' :
+                            leave.status === 'Approved' ? 'bg-green-600' :
+                            'bg-red-500'
+                        }`}>
+                            {leave.status}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Row 3: Attachment (if exists) */}
+                {leave.attachment && (
+                    <div className="details-section-grid">
+                        <div className="detail-item-box"> {/* Use detail-item-box for attachment too */}
+                            <strong>Attachment</strong>
+                            <a
+                                href={leave.attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="view-attachment-button"
+                            >
+                                View Attachment
+                            </a>
+                        </div>
+                    </div>
+                )}
+
+                {/* Message (full row) */}
+                {leave.message && (
+                    <div className="full-row-section">
+                        <span className="section-label">Message:</span>
+                        <p>{leave.message}</p>
+                    </div>
+                )}
+
+                {/* Note (full row) */}
+                <div className="full-row-section">
+                    <label htmlFor="note" className="section-label">Additional note (optional):</label>
+                    <textarea
+                        id="note"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        rows={3}
+                        className="form-textarea"
+                        placeholder="Write a note explaining your decision..."
+                    />
+                </div>
+
+                {/* Approve/Reject Buttons (centered, full row) */}
+                <div className="action-buttons-container">
+                    <button
+                        onClick={() => handleAction('Rejected')}
+                        disabled={loading}
+                        className="btn-reject"
+                    >
+                        Reject
+                    </button>
+                    <button
+                        onClick={() => handleAction('Approved')}
+                        disabled={loading}
+                        className="btn-approve"
+                    >
+                        Approve
+                    </button>
+                </div>
+            </section>
+        </div>
+    );
 };
 
 export default LeavesApprovalDetail;
