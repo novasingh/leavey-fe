@@ -27,8 +27,6 @@ const EmployeeDashboard = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [leaveType, setLeaveTypes] = useState([]);
   //leave balanace and month filter
-  const [leaveStats, setLeaveStats] = useState({});
-  const [leaveQuotas, setLeaveQuotas] = useState({});
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -116,44 +114,7 @@ const EmployeeDashboard = () => {
     }
     fetchLeaveRequests();
 
-    //Leave Balanace
-    if (!leaveRequests || leaveRequests.length === 0) return;
-    const filtered = leaveRequests.filter(lr => {
-      const startDate = new Date(lr.start);
-      const leaveMonth = startDate.getMonth() + 1;
-      const leaveYear = startDate.getFullYear();
-      const isApproved = lr.status === 'Approved';
-      const isMatchingMonth = leaveMonth === selectedMonth;
-      const isMatchingYear = leaveYear === selectedYear;
-
-      const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(lr.type);
-
-      return isApproved && (
-        (isYearlyType && isMatchingYear) ||
-        (!isYearlyType && isMatchingMonth && isMatchingYear)
-      );
-    });
-    console.log('Filtered Approved Leaves:', filtered);
-
-    const counts = {
-      'Annual Leave': 0,
-      'Sick Leave': 0,
-      'Marriage Leave': 0,
-      'Maternity Leave': 0,
-      'Emergency Leave': 0,
-      'Others': 0,
-    };
-
-    filtered.forEach(lr => {
-      const type = lr.type;
-      if (counts.hasOwnProperty(type)) {
-        counts[type] += lr.days; // use days instead of count++
-      } else {
-        counts['Other'] += lr.days;
-      }
-    });
-    setLeaveStats(counts);
-  }, [leaveRequests, selectedMonth, selectedYear]);
+  }, []);
 
   // Loading screen
   if (loadingUser) {
@@ -168,13 +129,12 @@ const EmployeeDashboard = () => {
   // Columns for the leave requests table
   const leaveRequestColumns = [
     { key: 'type', title: 'Leave Type', render: row => row.type },
-    { key: 'message', title: 'Reasons', render: row => row.message },
-    { key: 'from', title: t('dashboardPage.table.fromDate'), render: (row) => row.from },
-    { key: 'to', title: t('dashboardPage.table.toDate'), render: (row) => row.to },
-    { key: 'days', title: t('dashboardPage.table.days'), render: (row) => row.days },
+    { key: 'from', title: 'Start Date', render: (row) => row.from },
+    { key: 'to', title: 'End Date', render: (row) => row.to },
+    { key: 'days', title: 'Total Days', render: (row) => row.days },
     {
       key: 'status',
-      title: t('dashboardPage.table.status'),
+      title: 'Status',
       render: (row) => <StatusBadge status={row.status} />
     },
     {
@@ -191,30 +151,13 @@ const EmployeeDashboard = () => {
 
   // Date/time display for header
   const now = new Date();
-  const today = new Date();
   const dayName = now.toLocaleDateString(undefined, { weekday: 'long' });
   const dateStr = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }).replace(/,/g, '');
   const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
-  //Upcoming Holiday
-  const upcomingHoliday = [
-    { key: 'day', title: 'Day', render: (row) => t(row.day) },
-    { key: 'date', title: 'Date', render: (row) => t(row.date) },
-    { key: 'name', title: 'Holida Name', render: (row) => row.name },
-    { key: 'type', title: 'Holiday Type', render: (row) => row.type },
-    {
-      key: 'actions',
-      title: '',
-      width: '50px',
-      render: () => (
-        <Button variant="link" size="sm" className="p-0">
-          <FaEllipsisV />
-        </Button>
-      )
-    }
-  ];
+  //Upcoming Holidays
   const upcomingHolidays = events
-    .filter(event => new Date(event.date) >= today)
+    .filter(event => new Date(event.date) >= now)
     .map(event => {
       const formattedDate = new Date(event.date).toLocaleDateString('en-GB', {
         day: '2-digit',
@@ -280,7 +223,6 @@ const EmployeeDashboard = () => {
       date: event.start || 'N/A', // ✅ Add this
     }
   }));
-
   const calendarEvents = [...holidayEvents, ...approvedLeaveEvents];
 
   return (
@@ -362,11 +304,12 @@ const EmployeeDashboard = () => {
       </div>
 
       {/* Month and Year Filter */}
-      <div className="d-flex justify-content-end mb-3 gap-2">
+      <div className="d-flex justify-content-center mb-3 gap-3 w-100">
+        {/* Month */}
         <Form.Select
           value={selectedMonth}
           onChange={e => setSelectedMonth(Number(e.target.value))}
-          className="w-auto"
+          className="w-100"
         >
           {[...Array(12)].map((_, i) => (
             <option key={i + 1} value={i + 1}>
@@ -374,51 +317,160 @@ const EmployeeDashboard = () => {
             </option>
           ))}
         </Form.Select>
-
+        {/* Year */}
         <Form.Select
           value={selectedYear}
           onChange={e => setSelectedYear(Number(e.target.value))}
-          className="w-auto"
+          className="w-100"
         >
-          {[2023, 2024, 2025].map(year => (
-            <option key={year} value={year}>{year}</option>
-          ))}
+          {Array.from(
+            new Set(
+              (leaveRequests)
+                .map(lr => {
+                  const date = new Date(lr.start);
+                  return date.getFullYear();
+                })
+            )
+          )
+            .sort((a, b) => b - a)
+            .map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
         </Form.Select>
       </div>
 
       {/* Leave Balance Cards */}
       <Row className="g-3 mb-4">
-        {Object.entries(leaveStats).map(([type, used]) => {
-          const isMarriageOrMaternity = ['Marriage Leave', 'Maternity Leave'].includes(type);
-          const quota = leaveQuotas[type] || 0;
-          const displayUsed = Math.round(used);
-          const displayQuota = Math.round(quota);
+        {(() => {
+          // Color mapping for leave types (dynamic from DB)
+          const leaveTypeColors = (leaveType).reduce((acc, type) => {
+            acc[type.name] = type.color;
+            return acc;
+          }, {});
 
-          return (
-            <Col key={type} xl={4} md={6} className="d-flex">
-              <Card className="stat-card flex-fill p-3">
+          // Calculate used leave per type (Approved only, filtered by month/year or year for yearly types)
+          const usedLeave = {};
+          (leaveRequests || []).forEach(lr => {
+            const isApproved = lr.status === 'Approved';
+            if (!isApproved) return;
+            const type = lr.type;
+            const startDate = new Date(lr.start);
+            const leaveMonth = startDate.getMonth() + 1;
+            const leaveYear = startDate.getFullYear();
+            const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(type);
+
+            const match =
+              (isYearlyType && leaveYear === selectedYear) ||
+              (!isYearlyType && leaveMonth === selectedMonth && leaveYear === selectedYear);
+
+            if (match) {
+              usedLeave[type] = (usedLeave[type] || 0) + Number(lr.days || 0);
+            }
+          });
+
+          // Render cards for each leave type (active only)
+          return (leaveType || []).filter(type => type.is_active).map(type => {
+            const leaveName = type.name;
+            const isYearly = ['Marriage Leave', 'Maternity Leave'].includes(leaveName);
+            const quota = isYearly ? type.days : Math.round(type.days / 12);
+            const used = Math.round(usedLeave[leaveName] || 0);
+            const color = leaveTypeColors[leaveName];
+            const percent = quota > 0 ? Math.min(100, Math.round((used / quota) * 100)) : 0;
+
+            // Icon per leave type (optional, fallback to 📝)
+            const leaveIcons = {
+              'Annual Leave': '🌴',
+              'Sick Leave': '🤒',
+              'Marriage Leave': '💍',
+              'Maternity Leave': '🤰',
+              'Unpaid Leave': '💸',
+            };
+            const icon = leaveIcons[leaveName] || '📝';
+
+            const isExceeded = used > quota;
+
+            return (
+              <Col key={leaveName} xl={4} md={6} className="d-flex">
+              <Card
+                className="stat-card flex-fill p-3"
+                style={{
+                borderLeft: `6px solid ${color}`,
+                background: `${color}100`,
+                boxShadow: '0 2px 8px rgba(77,73,179,0.06)'
+                }}
+              >
                 <div className="d-flex align-items-start">
-                  <div className="emoji-icon flex-shrink-0">
-                    <div className="emoji-circle">
-                      <span role="img" aria-label="Leave Type">📝</span>
-                    </div>
-                  </div>
-                  <div className="ms-3">
-                    <h5 className="fw-bold mb-1">{type}</h5>
-                    <p className="mb-0">
-                      <span role="img" aria-label="Count">📅</span>{' '}
-                      {displayUsed} / {displayQuota}{' '}
-                      {isMarriageOrMaternity ? `per Year` : `Per Month`}
-                    </p>
+                <div className="emoji-icon flex-shrink-0">
+                  <div className="emoji-circle" style={{
+                  background: color,
+                  color: '#fff',
+                  width: 80,
+                  height: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  fontSize: '1.5rem'
+                  }}>
+                  <span role="img" aria-label="Leave Type">{icon}</span>
                   </div>
                 </div>
+                <div className="ms-3 flex-grow-1">
+                  <h5 className="fw-bold mb-1" style={{ color }}>{leaveName}</h5>
+                  <p className="mb-1" style={{ fontWeight: 500, color: '#333' }}>
+                  <span role="img" aria-label="Count">📅</span>{' '}
+                  {used} / {quota} {isYearly ? 'per Year' : 'Per Month'}
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div style={{
+                  background: '#e9ecef',
+                  borderRadius: 8,
+                  height: 10,
+                  width: '100%',
+                  marginTop: 8,
+                  marginBottom: 2,
+                  overflow: 'hidden'
+                  }}>
+                  <div style={{
+                    width: `${percent}%`,
+                    background: color,
+                    height: '100%',
+                    borderRadius: 8,
+                    transition: 'width 0.5s'
+                  }} />
+                  </div>
+                  <div style={{ fontSize: 12, color: '#666', textAlign: 'right' }}>
+                  {percent}% used
+                  </div>
+
+                  {/* Exceeded Warning */}
+                  {isExceeded && (
+                  <div
+                    style={{
+                    background: '#C31818',
+                    color: '#fff',
+                    borderRadius: 5,
+                    padding: '4px 10px',
+                    marginTop: '1px',
+                    fontWeight: 300,
+                    fontSize: 13,
+                    display: 'inline-block'
+                    }}
+                  >
+                    Leave balance exceeded
+                  </div>
+                  )}
+                </div>
+                </div>
               </Card>
-            </Col>
-          );
-        })}
+              </Col>
+            );
+          });
+        })()}
       </Row>
 
-      {/* My Leave Request */}
+      {/* Leave Requests and Upcoming */}
       <Row className="g-3">
         <Col lg={8}>
           <div className="d-flex flex-column h-100">
@@ -453,7 +505,7 @@ const EmployeeDashboard = () => {
                 </div>
               </div>
               <Button variant="outline-primary" size="sm">
-                {t('dashboardPage.viewAllButton')}
+                {'View All'}
               </Button>
             </div>
 
@@ -481,7 +533,7 @@ const EmployeeDashboard = () => {
         {/* NEW Upcoming */}
         <Col lg={4}>
           <div className="d-flex flex-column" >
-            {/* Upcoming Header */}
+            {/* Upcoming Leaves */}
             <div className="department-list-header">
               <div className="d-flex align-items-center">
                 <div>
@@ -493,9 +545,23 @@ const EmployeeDashboard = () => {
               </div>
             </div>
             {/* Content */}
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.8rem' }}>
               {upcomingLeaves.length === 0 ? (
-                <p>No Upcoming Leave</p>
+                <div style={{
+                  marginTop: '0.3rem'
+                }}>
+                  <span
+                    style={{
+                      backgroundColor: '#C31818',
+                      color: '#FFFFFF',
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.85rem'
+                    }}
+                  >
+                    No Upcoming Leaves
+                  </span>
+                </div>
               ) : (
                 upcomingLeaves.map((leave) => {
                   const startDate = new Date(leave.from);
@@ -524,7 +590,7 @@ const EmployeeDashboard = () => {
                           marginBottom: '0.5rem'
                         }}
                       >
-                        {leave.type || 'No Upcoming Leave'}
+                        {leave.type}
                       </div>
                       <div
                         className="leave-details"
@@ -580,9 +646,17 @@ const EmployeeDashboard = () => {
               </div>
             </div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <Card className="mb-3" style={{ maxHeight: '250px', overflowY: 'auto', padding: '1rem' }}>
+              <Card
+                className="mb-3"
+                style={{
+                  maxHeight: '430px',
+                  overflowY: 'auto',
+                  padding: '1rem',
+                  height: upcomingLeaves.length === 0 ? '430px' : '310px',
+                }}
+              >
                 <div style={{
-                  height: '320px', // fixed height regardless of data
+                  height: upcomingLeaves.length === 0 ? '430px' : '310px',
                   overflowY: 'auto',
                   scrollbarWidth: 'none',        // Firefox
                   msOverflowStyle: 'none'        // IE/Edge
@@ -611,7 +685,7 @@ const EmployeeDashboard = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-muted">{t('dashboardPage.noUpcomingHolidays')}</div>
+                    <div className="text-muted">{'No Upcoming Holidays'}</div>
                   )}
                 </div>
               </Card>
@@ -634,6 +708,13 @@ const EmployeeDashboard = () => {
               plugins={[dayGridPlugin]}
               initialView="dayGridMonth"
               events={calendarEvents}
+              eventTimeFormat={{
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: false,
+                hour12: false,
+              }}
+              displayEventTime={false}
               eventDidMount={(info) => {
                 const { type, day, date } = info.event.extendedProps;
 
