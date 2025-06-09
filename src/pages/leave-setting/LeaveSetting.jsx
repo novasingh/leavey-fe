@@ -120,6 +120,7 @@ const LeaveSetting = () => {
                   <thead>
                     <tr>
                       <th>Leave Types</th>
+                      <th>Icon</th>
                       <th>Days</th>
                       <th>Description</th>
                       <th>Color</th>
@@ -130,6 +131,7 @@ const LeaveSetting = () => {
                     {leaveTypes.map((lt) => (
                       <tr key={lt.leave_type_id}>
                         <td><span className="fw-semibold ms-1">{lt.name}</span></td>
+                        <td><span className="fs-5">{lt.icon}</span></td>
                         <td>{lt.days}</td>
                         <td>{lt.description}</td>
                         <td>{lt.color}</td>

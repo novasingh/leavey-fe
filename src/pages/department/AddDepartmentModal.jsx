@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import EmojiPicker from 'emoji-picker-react';
 import { addDepartment } from '../../services/departmentService';
 
 const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
+
     const [form, setForm] = useState({
         name: '',
         description: '',
+        icon: ''
     });
+
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const onEmojiClick = (emojiObject) => {
+        setForm(prevForm => ({ ...prevForm, icon: emojiObject.emoji }));
+        setShowEmojiPicker(false);
     };
 
     const handleSubmit = async (e) => {
@@ -42,6 +52,22 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
                             style={{ borderRadius: 8, fontSize: 15 }}
                         />
                     </Form.Group>
+                    <Form.Group className="mb-3 d-flex align-items-center">
+                        <Form.Label className="fw-bold mb-0 me-3">Icon:</Form.Label>
+                        <Button
+                            variant="outline-secondary"
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                            style={{ borderRadius: 12, height: '38px', minWidth: '100px' }}
+                        >
+                            {form.icon ? form.icon : 'Choose'}
+                        </Button>
+                    </Form.Group>
+
+                    {showEmojiPicker && (
+                        <div className="d-flex justify-content-center mb-3">
+                            <EmojiPicker onEmojiClick={onEmojiClick} />
+                        </div>
+                    )}
 
                     <Form.Group className="mb-4">
                         <Form.Label className="fw-bold mb-2">Description: </Form.Label>

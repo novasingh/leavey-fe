@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import EmojiPicker from 'emoji-picker-react';
 import { getManagers, updateDepartment } from '../../services/departmentService';
 
 const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToEdit }) => {
 
-    const [form, setForm] = useState({ name: '', manager: '', description: '' });
+    const [form, setForm] = useState({ name: '', manager: '', description: '', icon: '' });
     const [managers, setManagers] = useState([]);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     useEffect(() => {
         if (show) {
@@ -29,13 +31,19 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
             setForm({
                 name: departmentToEdit.name || '',
                 manager: departmentToEdit.manager || '',
-                description: departmentToEdit.description || ''
+                description: departmentToEdit.description || '',
+                icon: departmentToEdit.icon || ''
             });
         }
     }, [departmentToEdit]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const onEmojiClick = (emojiObject) => {
+        setForm(prevForm => ({ ...prevForm, icon: emojiObject.emoji }));
+        setShowEmojiPicker(false);
     };
 
     const handleSubmit = async (e) => {
@@ -59,8 +67,8 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                     <div style={{ color: '#5B4B8A', fontWeight: 700, fontSize: 22 }}>Edit Department</div>
                 </div>
                 <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Department Name: </Form.Label>
+                    <Form.Group className="mb-3 d-flex align-items-center">
+                        <Form.Label className="fw-bold mb-0 me-3" style={{ flex: '0 0 170px' }}>Department Name:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Input Department Name"
@@ -68,9 +76,23 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             value={form.name}
                             onChange={handleChange}
                             required
+                            style={{ borderRadius: 12 }}
                         />
                     </Form.Group>
 
+                    <Form.Group className="mb-3">
+                        <div className="d-flex align-items-center">
+                            <Form.Label className="fw-bold mb-0 me-3">Icon:</Form.Label>
+                            <Button variant="outline-secondary" onClick={() => setShowEmojiPicker(!showEmojiPicker)} style={{ borderRadius: 12, height: '38px', minWidth: '120px' }}>
+                                {form.icon ? form.icon : 'Choose Icon'}
+                            </Button>
+                        </div>
+                        {showEmojiPicker && (
+                            <div className="mt-2">
+                                <EmojiPicker onEmojiClick={onEmojiClick} />
+                            </div>
+                        )}
+                    </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label className="fw-bold">Description: </Form.Label>
