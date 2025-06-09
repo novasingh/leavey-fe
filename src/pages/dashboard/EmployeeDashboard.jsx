@@ -11,112 +11,34 @@ import { getDepartments } from '../../services/departmentService';
 import { getLeave, getLeaveTypes } from '../../services/leaveService';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
 const EmployeeDashboard = () => {
-
   const { t } = useTranslation();
-  // User state and loading flag
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [departments, setDepartments] = useState([]);
   const [events, setEvents] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
-  const [leaveType, setLeaveTypes] = useState([]);
-  //leave balanace and month filter
+  const [leaveTypes, setLeaveTypes] = useState([]);
   const [leaveStats, setLeaveStats] = useState({});
   const [leaveQuotas, setLeaveQuotas] = useState({});
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    // Fetch user info on mount
     const loggedInUser = authService.getUser();
-    console.log('Fetched user:', loggedInUser);
     setUser(loggedInUser);
     setLoadingUser(false);
-
-    const token = localStorage.getItem('access_token');
-
-    // fetchDepartments();
-    const fetchDepartments = async () => {
-      try {
-        const res = await getDepartments();
-        console.log('Fetched Departments:', res);
-
-        setDepartments(res);
-      } catch (error) {
-        console.error('Failed to fetch departments', error);
-      }
-    }
     fetchDepartments();
-
-    // fetchEvent()
-    const fetchEvents = async () => {
-      try {
-        const res = await getEvents();
-        console.log('Fetched Events:', res);
-
-        setEvents(res);
-      } catch (error) {
-        console.error('Failed to fetch events', error);
-      }
-    }
     fetchEvents();
-
-    // fetchLEaveTypes()
-    const fetchLeaveTypes = async () => {
-      try {
-        const res = await getLeaveTypes();
-        console.log('Fetched Leave Types:', res);
-        setLeaveTypes(res);
-
-        const quotas = {};
-        res.forEach(type => {
-          if (!type.is_active) return;
-
-          if (type.name === 'Marriage Leave' || type.name === 'Maternity Leave') {
-            quotas[type.name] = type.days; // yearly
-          } else {
-            quotas[type.name] = type.days / 12; // monthly
-          }
-        });
-
-        setLeaveQuotas(quotas); // 💡 This replaces the hardcoded quotas
-      } catch (error) {
-        console.error('Failed to fetch leave types', error);
-      }
-    };
     fetchLeaveTypes();
-
-    // fetchLeaveRequest()
-    const fetchLeaveRequests = async () => {
-      try {
-        const data = await getLeave();
-        console.log('Fetched leave:', data);
-        const formatted = data.map(item => ({
-          id: item.id,
-          type: item.leave_type_name,
-          employee_name: item.employee_name,
-          message: item.message,
-          from: item.start_date,
-          to: item.end_date,
-          days: item.days,
-          status: item.status,
-          start: new Date(item.start_date).toLocaleDateString(),
-          created: new Date(item.created_at).toLocaleDateString(),
-        }));
-        setLeaveRequests(formatted);
-      } catch (err) {
-        console.error('Failed to fetch leave requests:', err);
-      }
-    }
     fetchLeaveRequests();
+    // eslint-disable-next-line
+  }, []);
 
-    //Leave Balanace
+  useEffect(() => {
     if (!leaveRequests || leaveRequests.length === 0) return;
     const filtered = leaveRequests.filter(lr => {
       const startDate = new Date(lr.start);
@@ -125,16 +47,12 @@ const EmployeeDashboard = () => {
       const isApproved = lr.status === 'Approved';
       const isMatchingMonth = leaveMonth === selectedMonth;
       const isMatchingYear = leaveYear === selectedYear;
-
       const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(lr.type);
-
       return isApproved && (
         (isYearlyType && isMatchingYear) ||
         (!isYearlyType && isMatchingMonth && isMatchingYear)
       );
     });
-    console.log('Filtered Approved Leaves:', filtered);
-
     const counts = {
       'Annual Leave': 0,
       'Sick Leave': 0,
@@ -143,29 +61,82 @@ const EmployeeDashboard = () => {
       'Emergency Leave': 0,
       'Others': 0,
     };
-
     filtered.forEach(lr => {
       const type = lr.type;
       if (counts.hasOwnProperty(type)) {
-        counts[type] += lr.days; // use days instead of count++
+        counts[type] += lr.days;
       } else {
-        counts['Other'] += lr.days;
+        counts['Others'] += lr.days;
       }
     });
     setLeaveStats(counts);
   }, [leaveRequests, selectedMonth, selectedYear]);
 
-  // Loading screen
+  const fetchDepartments = async () => {
+    try {
+      const res = await getDepartments();
+      setDepartments(res);
+    } catch (error) {
+      // handle error
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const res = await getEvents();
+      setEvents(res);
+    } catch (error) {
+      // handle error
+    }
+  };
+
+  const fetchLeaveTypes = async () => {
+    try {
+      const res = await getLeaveTypes();
+      setLeaveTypes(res);
+      const quotas = {};
+      res.forEach(type => {
+        if (!type.is_active) return;
+        if (type.name === 'Marriage Leave' || type.name === 'Maternity Leave') {
+          quotas[type.name] = type.days;
+        } else {
+          quotas[type.name] = type.days / 12;
+        }
+      });
+      setLeaveQuotas(quotas);
+    } catch (error) {
+      // handle error
+    }
+  };
+
+  const fetchLeaveRequests = async () => {
+    try {
+      const data = await getLeave();
+      const formatted = data.map(item => ({
+        id: item.id,
+        type: item.leave_type_name,
+        employee_name: item.employee_name,
+        message: item.message,
+        from: item.start_date,
+        to: item.end_date,
+        days: item.days,
+        status: item.status,
+        start: new Date(item.start_date).toLocaleDateString(),
+        created: new Date(item.created_at).toLocaleDateString(),
+      }));
+      setLeaveRequests(formatted);
+    } catch (err) {
+      // handle error
+    }
+  };
+
   if (loadingUser) {
     return <div className="dashboardPage-page">Loading user info...</div>;
   }
-
-  // No user fallback
   if (!user) {
     return <div className="dashboardPage-page">User not found. Please log in.</div>;
   }
 
-  // Columns for the leave requests table
   const leaveRequestColumns = [
     { key: 'type', title: 'Leave Type', render: row => row.type },
     { key: 'message', title: 'Reasons', render: row => row.message },
@@ -189,30 +160,12 @@ const EmployeeDashboard = () => {
     }
   ];
 
-  // Date/time display for header
   const now = new Date();
   const today = new Date();
   const dayName = now.toLocaleDateString(undefined, { weekday: 'long' });
   const dateStr = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }).replace(/,/g, '');
   const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
-  //Upcoming Holiday
-  const upcomingHoliday = [
-    { key: 'day', title: 'Day', render: (row) => t(row.day) },
-    { key: 'date', title: 'Date', render: (row) => t(row.date) },
-    { key: 'name', title: 'Holida Name', render: (row) => row.name },
-    { key: 'type', title: 'Holiday Type', render: (row) => row.type },
-    {
-      key: 'actions',
-      title: '',
-      width: '50px',
-      render: () => (
-        <Button variant="link" size="sm" className="p-0">
-          <FaEllipsisV />
-        </Button>
-      )
-    }
-  ];
   const upcomingHolidays = events
     .filter(event => new Date(event.date) >= today)
     .map(event => {
@@ -221,7 +174,6 @@ const EmployeeDashboard = () => {
         month: 'short',
         year: 'numeric'
       });
-
       return {
         day: event.day,
         date: formattedDate,
@@ -230,7 +182,6 @@ const EmployeeDashboard = () => {
       };
     });
 
-  // NEW Upcoming Leaves
   const upcomingLeaves = (leaveRequests || [])
     .filter((leave) => {
       if (!leave.from) return false;
@@ -240,11 +191,9 @@ const EmployeeDashboard = () => {
       const isUpcoming = start > now;
       return isApproved && isUpcoming;
     })
-    .sort((a, b) => new Date(a.from) - new Date(b.from)) // Sort by start date
-    .slice(0, 1); // Take only the earliest one
-  console.log('Filtered upcoming leaves:', upcomingLeaves);
+    .sort((a, b) => new Date(a.from) - new Date(b.from))
+    .slice(0, 1);
 
-  // Approval Leave Events
   const approvedLeaveEvents = (leaveRequests ?? [])
     .filter(leave => leave?.status === 'Approved')
     .map(leave => ({
@@ -252,7 +201,7 @@ const EmployeeDashboard = () => {
         ? `${leave?.employee_name} - ${leave?.type}`
         : leave?.type || 'Leave',
       start: leave?.from,
-      end: new Date(new Date(leave?.to).getTime() + 24 * 60 * 60 * 1000), // ✅ +1 day to include end date
+      end: new Date(new Date(leave?.to).getTime() + 24 * 60 * 60 * 1000),
       color: '#00905F',
       extendedProps: {
         type: 'Leave',
@@ -269,7 +218,6 @@ const EmployeeDashboard = () => {
       },
     }));
 
-  // Holiday Events
   const holidayEvents = events.map(event => ({
     title: event.holiday_name || 'Holiday',
     start: event.date,
@@ -277,7 +225,7 @@ const EmployeeDashboard = () => {
     extendedProps: {
       type: event.holiday_type || 'Holiday',
       day: event.day || 'N/A',
-      date: event.start || 'N/A', // ✅ Add this
+      date: event.start || 'N/A',
     }
   }));
 
