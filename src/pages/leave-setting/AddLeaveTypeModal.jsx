@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
-import { addLeaveTypes } from '../../services/leaveService'; // Use the renamed function
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import EmojiPicker from 'emoji-picker-react';
+import { addLeaveTypes } from '../../services/leaveService';
 
 const AddLeaveTypeModal = ({ show, onClose, onLeaveTypeAdded }) => {
-    const [formData, setFormData] = useState({ name: '', days: '', description: '' , color: ''});
+    const [formData, setFormData] = useState({ name: '', days: '', description: '', color: '', icon: '' });
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const onEmojiClick = (emojiObject) => {
+        setFormData(prev => ({ ...prev, icon: emojiObject.emoji }));
+        setShowEmojiPicker(false);
     };
 
     const handleSubmit = async (e) => {
@@ -31,19 +38,33 @@ const AddLeaveTypeModal = ({ show, onClose, onLeaveTypeAdded }) => {
                 <Form onSubmit={handleSubmit}>
                     {error && <p className="text-danger text-center">{error}</p>}
                     <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Leave Name</Form.Label>
+                        <Form.Label className="fw-bold">Leave Name:</Form.Label>
                         <Form.Control type="text" name="name" placeholder="e.g., Annual Leave" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
+
                     <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Days</Form.Label>
+                        <Form.Label className="fw-bold">Days:</Form.Label>
                         <Form.Control type="number" name="days" placeholder="e.g., 12" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-bold">Icon:</Form.Label>
+                        <Button variant="outline-secondary" className="w-100" onClick={() => setShowEmojiPicker(!showEmojiPicker)} style={{ borderRadius: 12, height: '38px' }}>
+                            {formData.icon ? formData.icon : 'Choose'}
+                        </Button>
+                    </Form.Group>
+
+                    {showEmojiPicker && (
+                        <div className="d-flex justify-content-center mb-3">
+                            <EmojiPicker onEmojiClick={onEmojiClick} />
+                        </div>
+                    )}
                     <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold">Description</Form.Label>
+                        <Form.Label className="fw-bold">Description:</Form.Label>
                         <Form.Control as="textarea" name="description" rows={3} placeholder="Enter a short description" onChange={handleChange} style={{ borderRadius: 12 }} />
                     </Form.Group>
                     <Form.Group className="mb-5">
-                        <Form.Label className="fw-bold">Color</Form.Label>
+                        <Form.Label className="fw-bold">Color:</Form.Label>
                         <Form.Control type="textarea" name="color" placeholder="e.g., #ffffff" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
                     <div className="d-flex justify-content-between mt-4">

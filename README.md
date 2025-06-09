@@ -108,7 +108,9 @@ src/
    ```sh
    npm install
    ```
-
+  # If you're missing charting libs:
+  npm install chart.js react-chartjs-2
+  
 3. **Environment Configuration:**
    Create a `.env` file in the root directory:
    ```env
