@@ -3,7 +3,8 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { getManagers, updateDepartment } from '../../services/departmentService';
 
 const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToEdit }) => {
-    const [form, setForm] = useState({ name: '', manager: '' });
+
+    const [form, setForm] = useState({ name: '', manager: '', description: '' });
     const [managers, setManagers] = useState([]);
 
     useEffect(() => {
@@ -24,9 +25,11 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
 
     useEffect(() => {
         if (departmentToEdit) {
+
             setForm({
                 name: departmentToEdit.name || '',
                 manager: departmentToEdit.manager || '',
+                description: departmentToEdit.description || ''
             });
         }
     }, [departmentToEdit]);
@@ -40,8 +43,9 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
         if (!departmentToEdit) return;
 
         try {
+
             const updatedDepartment = await updateDepartment(departmentToEdit.id, form);
-            onDepartmentUpdated(updatedDepartment); // Notify parent component
+            onDepartmentUpdated(updatedDepartment);
             onClose();
         } catch (error) {
             console.error('Error updating department:', error);
@@ -56,7 +60,7 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                 </div>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Department Name</Form.Label>
+                        <Form.Label className="fw-bold">Department Name: </Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Input Department Name"
@@ -66,8 +70,22 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             required
                         />
                     </Form.Group>
+
+
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-bold">Description: </Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            placeholder="Enter a short description"
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                        />
+                    </Form.Group>
+
                     <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold">Assign Manager</Form.Label>
+                        <Form.Label className="fw-bold">Assign Manager:</Form.Label>
                         <Form.Select
                             name="manager"
                             value={form.manager}
