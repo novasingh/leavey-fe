@@ -116,25 +116,6 @@ const EmployeeDashboard = () => {
     }
     fetchLeaveRequests();
 
-    const generateApprovedLeaveEvents = (requests) => {
-      return (requests ?? [])
-        .filter(leave => leave?.status === 'Approved')
-        .map(leave => ({
-          title: `${leave?.employee_name ?? 'Unknown'} - ${leave?.type || 'Leave'}`,
-          start: leave?.from,
-          end: leave?.to,
-          color: '#00905F',
-          extendedProps: {
-            type: 'Leave',
-            date: leave?.from ?? leave?.to,
-            day: leave?.days ?? 'N/A',
-            days: leave?.days,
-            message: leave?.message ?? '-',
-            employee: leave?.employee_name ?? '-'
-          }
-        }));
-    };
-
     //Leave Balanace
     if (!leaveRequests || leaveRequests.length === 0) return;
     const filtered = leaveRequests.filter(lr => {
@@ -215,33 +196,6 @@ const EmployeeDashboard = () => {
   const dateStr = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }).replace(/,/g, '');
   const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
-  // Approval Leave Events
-  const approvedLeaveEvents = (leaveRequests ?? [])
-    .filter(leave => leave?.status === 'Approved')
-    .map(leave => ({
-      title: leave?.type || 'Leave',
-      start: leave?.from,
-      end: leave?.to,
-      color: '#00905F',
-      extendedProps: {
-        date: leave?.from ?? leave?.to,
-        day: leave?.days ?? 'N/A'
-      }
-    }));
-  console.log('Approved Leave Events:', approvedLeaveEvents);
-
-  //Holiday Events
-  const holidayEvents = events.map(event => ({
-    title: event.holiday_name || 'Holiday',
-    date: event.date,
-    color: '#C31818',
-    extendedProps: {
-      type: event.holiday_type || 'Holiday',
-      day: event.day || 'N/A'
-    }
-  }));
-  const calendarEvents = [...holidayEvents, ...approvedLeaveEvents];
-
   //Upcoming Holiday
   const upcomingHoliday = [
     { key: 'day', title: 'Day', render: (row) => t(row.day) },
@@ -289,6 +243,45 @@ const EmployeeDashboard = () => {
     .sort((a, b) => new Date(a.from) - new Date(b.from)) // Sort by start date
     .slice(0, 1); // Take only the earliest one
   console.log('Filtered upcoming leaves:', upcomingLeaves);
+
+  // Approval Leave Events
+  const approvedLeaveEvents = (leaveRequests ?? [])
+    .filter(leave => leave?.status === 'Approved')
+    .map(leave => ({
+      title: leave?.employee_name
+        ? `${leave?.employee_name} - ${leave?.type}`
+        : leave?.type || 'Leave',
+      start: leave?.from,
+      end: new Date(new Date(leave?.to).getTime() + 24 * 60 * 60 * 1000), // ✅ +1 day to include end date
+      color: '#00905F',
+      extendedProps: {
+        type: 'Leave',
+        date: `${new Date(leave?.from).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        })} to ${new Date(leave?.to).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        })}`,
+        day: leave?.days ?? 'N/A',
+      },
+    }));
+
+  // Holiday Events
+  const holidayEvents = events.map(event => ({
+    title: event.holiday_name || 'Holiday',
+    start: event.date,
+    color: '#C31818',
+    extendedProps: {
+      type: event.holiday_type || 'Holiday',
+      day: event.day || 'N/A',
+      date: event.start || 'N/A', // ✅ Add this
+    }
+  }));
+
+  const calendarEvents = [...holidayEvents, ...approvedLeaveEvents];
 
   return (
     <div className="dashboardPage-page">
@@ -368,7 +361,7 @@ const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* Month and Year Filter
+      {/* Month and Year Filter */}
       <div className="d-flex justify-content-end mb-3 gap-2">
         <Form.Select
           value={selectedMonth}
@@ -391,7 +384,7 @@ const EmployeeDashboard = () => {
             <option key={year} value={year}>{year}</option>
           ))}
         </Form.Select>
-      </div> */}
+      </div>
 
       {/* Leave Balance Cards */}
       <Row className="g-3 mb-4">
@@ -487,7 +480,7 @@ const EmployeeDashboard = () => {
 
         {/* NEW Upcoming */}
         <Col lg={4}>
-          <div className="d-flex flex-column" > 
+          <div className="d-flex flex-column" >
             {/* Upcoming Header */}
             <div className="department-list-header">
               <div className="d-flex align-items-center">
@@ -594,7 +587,7 @@ const EmployeeDashboard = () => {
                   scrollbarWidth: 'none',        // Firefox
                   msOverflowStyle: 'none'        // IE/Edge
                 }}
-                className="scroll-container">
+                  className="scroll-container">
                   {upcomingHolidays.length > 0 ? (
                     upcomingHolidays.map((event, index) => (
                       <div key={index} className="event-item mb-3" style={{ borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
@@ -625,6 +618,48 @@ const EmployeeDashboard = () => {
             </div>
           </div>
         </Col>
+      </Row>
+
+      {/* Holiday Calendar */}
+      <Row className="g-1">
+        <div className="department-list-header">
+          <h5 style={{ fontWeight: 'bold', marginBottom: '0' }}>📅 Holiday Calendar
+          </h5>
+          <p style={{ marginTop: 0, marginBottom: '0.5rem', color: '#666' }}>View all holidays and approved leaves at a glance in a unified calendar layout</p>
+        </div>
+        <Card>
+          <div className="calendar-placeholder">
+            {/* Calendar */}
+            <FullCalendar
+              plugins={[dayGridPlugin]}
+              initialView="dayGridMonth"
+              events={calendarEvents}
+              eventDidMount={(info) => {
+                const { type, day, date } = info.event.extendedProps;
+
+                const isLeave = type === 'Leave';
+                const tooltipContent = isLeave
+                  ? `
+              <strong>${info.event.title}</strong><br/>
+              Total Days: ${day}<br/>
+              Date: ${date}
+            `
+                  : `
+              <strong>${info.event.title}</strong><br/>
+              Type: ${type}<br/>
+              Day: ${day}
+            `;
+
+                tippy(info.el, {
+                  content: tooltipContent,
+                  allowHTML: true,
+                  placement: 'top',
+                });
+              }}
+              height="auto"
+            />
+          </div>
+        </Card>
       </Row>
     </div>
   );

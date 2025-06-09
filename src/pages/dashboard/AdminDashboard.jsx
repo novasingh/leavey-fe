@@ -138,6 +138,7 @@ const AdminDashboard = () => {
 
   // Date/time display for header
   const now = new Date();
+  const today = new Date();
   const dayName = now.toLocaleDateString(undefined, { weekday: 'long' });
   const dateStr = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }).replace(/,/g, '');
   const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
@@ -159,7 +160,6 @@ const AdminDashboard = () => {
       )
     }
   ];
-  const today = new Date();
   const upcomingHolidays = events
     .filter(event => new Date(event.date) >= today)
     .map(event => {
@@ -176,6 +176,59 @@ const AdminDashboard = () => {
         type: event.holiday_type
       };
     });
+
+  // NEW Upcoming Leaves
+  const upcomingLeaves = (leaveRequests || [])
+    .filter((leave) => {
+      if (!leave.from) return false;
+      const start = new Date(leave.from);
+      const now = new Date();
+      const isApproved = leave.status === 'Approved';
+      const isUpcoming = start > now;
+      return isApproved && isUpcoming;
+    })
+    .sort((a, b) => new Date(a.from) - new Date(b.from)) // Sort by start date
+    .slice(0, 1); // Take only the earliest one
+  console.log('Filtered upcoming leaves:', upcomingLeaves);
+
+  // Approval Leave Events
+  const approvedLeaveEvents = (leaveRequests ?? [])
+    .filter(leave => leave?.status === 'Approved')
+    .map(leave => ({
+      title: leave?.employee_name
+        ? `${leave?.employee_name} - ${leave?.type}`
+        : leave?.type || 'Leave',
+      start: leave?.from,
+      end: new Date(new Date(leave?.to).getTime() + 24 * 60 * 60 * 1000), // ✅ +1 day to include end date
+      color: '#00905F',
+      extendedProps: {
+        type: 'Leave',
+        date: `${new Date(leave?.from).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        })} to ${new Date(leave?.to).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        })}`,
+        day: leave?.days ?? 'N/A',
+      },
+    }));
+
+  // Holiday Events
+  const holidayEvents = events.map(event => ({
+    title: event.holiday_name || 'Holiday',
+    start: event.date,
+    color: '#C31818',
+    extendedProps: {
+      type: event.holiday_type || 'Holiday',
+      day: event.day || 'N/A',
+      date: event.start || 'N/A', // ✅ Add this
+    }
+  }));
+
+  const calendarEvents = [...holidayEvents, ...approvedLeaveEvents];
 
   const currentWorkHours = {
     startTime: '9:00 AM',
@@ -345,40 +398,35 @@ const AdminDashboard = () => {
       {/* Holiday Calendar */}
       <Row className="g-1">
         <div className="department-list-header">
-          <h5 style={{ fontWeight: 'bold', marginBottom: '0' }}>Holiday Calendar</h5>
-          <p style={{ marginTop: 0, marginBottom: '0.5rem', color: '#666' }}>lorem ipsum</p>
+          <h5 style={{ fontWeight: 'bold', marginBottom: '0' }}>📅 Holiday Calendar
+          </h5>
+          <p style={{ marginTop: 0, marginBottom: '0.5rem', color: '#666' }}>View all holidays and approved leaves at a glance in a unified calendar layout</p>
         </div>
         <Card>
           <div className="calendar-placeholder">
             {/* Calendar */}
             <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              plugins={[dayGridPlugin]}
               initialView="dayGridMonth"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-              }}
-              events={
-                events.map((event) => ({
-                  title: event.holiday_name || 'No Title',
-                  date: event.date,
-                  extendedProps: {
-                    day: event.day || 'no data',
-                    type: event.holiday_type || 'no data'
-                  }
-                }))
-              }
+              events={calendarEvents}
               eventDidMount={(info) => {
-                const day = info.event.extendedProps.day;
-                const type = info.event.extendedProps.type;
+                const { type, day, date } = info.event.extendedProps;
+
+                const isLeave = type === 'Leave';
+                const tooltipContent = isLeave
+                  ? `
+                    <strong>${info.event.title}</strong><br/>
+                    Total Days: ${day}<br/>
+                    Date: ${date}
+                  `
+                  : `
+                    <strong>${info.event.title}</strong><br/>
+                    Type: ${type}<br/>
+                    Day: ${day}
+                  `;
 
                 tippy(info.el, {
-                  content: `
-                  <strong>${info.event.holiday_name}</strong><br/>
-                  Day: ${day}<br/>
-        Type: ${type}
-      `,
+                  content: tooltipContent,
                   allowHTML: true,
                   placement: 'top',
                 });

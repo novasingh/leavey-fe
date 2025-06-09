@@ -8,6 +8,7 @@ import { Card, Table, StatusBadge } from '../../components';
 import './Dashboard.scss';
 import { getDepartments } from '../../services/departmentService';
 import { getEvents } from '../../services/eventService';
+import { getLeave, getLeaveTypes } from '../../services/leaveService';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -23,7 +24,15 @@ const ManagerDashboard = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [departments, setDepartments] = useState([]);
   const [events, setEvents] = useState([]);
-
+  const [leaveRequestTab, setLeaveRequestTab] = useState('All');
+  const [leaveTab, setLeaveTab] = useState('all');
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [leaveType, setLeaveTypes] = useState([]);
+  //leave balanace and month filter
+  const [leaveStats, setLeaveStats] = useState({});
+  const [leaveQuotas, setLeaveQuotas] = useState({});
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   useEffect(() => {
     // Fetch user info on mount
     const loggedInUser = authService.getUser();
@@ -59,6 +68,42 @@ const ManagerDashboard = () => {
     }
     fetchEvents();
 
+    // fetchLEaveTypes()
+    const fetchLeaveTypes = async () => {
+      try {
+        const res = await getLeaveTypes();
+        console.log('Fetched Leave Types:', res);
+
+        setLeaveTypes(res);
+      } catch (error) {
+        console.error('Failed to fetch leave types', error);
+      }
+    }
+    fetchLeaveTypes();
+
+    // fetchLeaveRequest()
+    const fetchLeaveRequests = async () => {
+      try {
+        const data = await getLeave();
+        console.log('Fetched leave:', data);
+        const formatted = data.map(item => ({
+          id: item.id,
+          type: item.leave_type_name,
+          from: item.start_date,
+          to: item.end_date,
+          days: item.days,
+          status: item.status,
+          created: new Date(item.created_at).toLocaleDateString(),
+          created_at: item.created_at, // ✅ add this line
+          leave_type_name: item.leave_type_name, // ✅ if you’re using it in chart
+          department: item.department_name || "Unknown"
+        }));
+        setLeaveRequests(formatted);
+      } catch (err) {
+        console.error('Failed to fetch leave requests:', err);
+      }
+    }
+    fetchLeaveRequests();
   }, []);
 
   // Loading screen
@@ -70,14 +115,6 @@ const ManagerDashboard = () => {
   if (!user) {
     return <div className="dashboardPage-page">User not found. Please log in.</div>;
   }
-
-  // Sample leave requests data
-  const leaveRequests = [
-    { id: 1, employeeKey: 'dashboardPage.employees.janeSmith', typeKey: 'dashboardPage.leaveTypes.annual', from: '2025-05-26', to: '2025-05-30', days: 5, status: 'pending' },
-    { id: 2, employeeKey: 'dashboardPage.employees.michaelBrown', typeKey: 'dashboardPage.leaveTypes.sick', from: '2025-05-24', to: '2025-05-25', days: 2, status: 'approved' },
-    { id: 3, employeeKey: 'dashboardPage.employees.sarahJohnson', typeKey: 'dashboardPage.leaveTypes.personal', from: '2025-06-01', to: '2025-06-03', days: 3, status: 'rejected' },
-    { id: 4, employeeKey: 'dashboardPage.employees.davidLee', typeKey: 'dashboardPage.leaveTypes.wfh', from: '2025-05-27', to: '2025-05-27', days: 1, status: 'approved' }
-  ];
 
   // Columns for the leave requests table
   const leaveRequestColumns = [
@@ -103,23 +140,34 @@ const ManagerDashboard = () => {
     }
   ];
 
-  // Calendar
-  const calendarEvents = events.map((event) => ({
+  // Calendar events: holidays + approved team leaves
+  const holidayEvents = events.map((event) => ({
     title: event.holiday_name || 'No Title',
     date: event.date,
+    color: '#4D49B3', // holiday color
     extendedProps: {
       day: event.day || 'no data',
-      type: event.holiday_type || 'no data'
+      type: event.holiday_type || 'no data',
+      isHoliday: true
     }
-  })
-  );
+  }));
 
-  const teamMembers = [
-    { id: 1, nameKey: 'dashboardPage.employees.janeSmith', positionKey: 'dashboardPage.positions.uiDesigner', status: 'active' },
-    { id: 2, nameKey: 'dashboardPage.employees.michaelBrown', positionKey: 'dashboardPage.positions.developer', status: 'active' },
-    { id: 3, nameKey: 'dashboardPage.employees.sarahJohnson', positionKey: 'dashboardPage.positions.projectManager', status: 'on-leave' },
-    { id: 4, nameKey: 'dashboardPage.employees.davidLee', positionKey: 'dashboardPage.positions.qaEngineer', status: 'active' }
-  ];
+  // Approved leaves for current team (filter as needed)
+  const approvedLeaveEvents = (leaveRequests || [])
+    .filter(lr => lr.status === 'approved')
+    .map(lr => ({
+      title: `On Leave: ${t(lr.employeeKey)} (${t(lr.typeKey)})`,
+      start: lr.from,
+      end: lr.to,
+      color: '#E74C3C', // leave color
+      extendedProps: {
+        employee: t(lr.employeeKey),
+        type: t(lr.typeKey),
+        isLeave: true
+      }
+    }));
+
+  const calendarEvents = [...holidayEvents, ...approvedLeaveEvents];
 
   // Date/time display for header
   const now = new Date();
@@ -172,7 +220,6 @@ const ManagerDashboard = () => {
     leaveYear: 2025,
     companyLeaveLeft: 12,
   };
-
 
   return (
     <div className="dashboardPage-page">
@@ -227,8 +274,6 @@ const ManagerDashboard = () => {
                       <span role="img" aria-label="Department Icon">👨‍💼</span>
                     </div>
                   </div>
-
-
                   {/* Department Info */}
                   <div className="ms-3">
                     <h5 className="fw-bold mb-1">{dept.name}</h5>
@@ -244,6 +289,105 @@ const ManagerDashboard = () => {
           <p>No departments available.</p>
         )}
       </Row>
+
+      {/* --- NEW: Leave Request Stat Cards, Tabbed List, On Leave Today --- */}
+      <Row className="g-3 mb-4">
+        {/* Leave Request Stat Cards */}
+        <Col xl={9}>
+          <Row className="g-3 mb-2">
+            {Array.isArray(leaveRequests) && leaveRequests.length > 0 && (
+              <>
+                <Col md={3} sm={6} xs={12}>
+                  <Card className="text-center p-3" style={{ borderLeft: `6px solid #4D49B3`, boxShadow: '0 2px 8px #f0f1f2' }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#4D49B3' }}>{leaveRequests.length}</div>
+                    <div style={{ fontWeight: 600, color: '#333' }}>Total Requests</div>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6} xs={12}>
+                  <Card className="text-center p-3" style={{ borderLeft: `6px solid #4BB543`, boxShadow: '0 2px 8px #f0f1f2' }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#4BB543' }}>{leaveRequests.filter(lr => lr.status === 'approved').length}</div>
+                    <div style={{ fontWeight: 600, color: '#333' }}>Approved</div>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6} xs={12}>
+                  <Card className="text-center p-3" style={{ borderLeft: `6px solid #E74C3C`, boxShadow: '0 2px 8px #f0f1f2' }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#E74C3C' }}>{leaveRequests.filter(lr => lr.status === 'rejected').length}</div>
+                    <div style={{ fontWeight: 600, color: '#333' }}>Rejected</div>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6} xs={12}>
+                  <Card className="text-center p-3" style={{ borderLeft: `6px solid #F1C40F`, boxShadow: '0 2px 8px #f0f1f2' }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#F1C40F' }}>{leaveRequests.filter(lr => lr.status === 'pending').length}</div>
+                    <div style={{ fontWeight: 600, color: '#333' }}>Pending</div>
+                  </Card>
+                </Col>
+              </>
+            )}
+          </Row>
+
+          {/* Tabbed Leave Request List */}
+          <Card className="p-3">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <Button
+                  variant={leaveTab === 'all' ? 'primary' : 'outline-primary'}
+                  size="sm"
+                  className="me-2"
+                  onClick={() => setLeaveTab('all')}
+                >All</Button>
+                <Button
+                  variant={leaveTab === 'approved' ? 'success' : 'outline-success'}
+                  size="sm"
+                  className="me-2"
+                  onClick={() => setLeaveTab('approved')}
+                >Approved</Button>
+                <Button
+                  variant={leaveTab === 'rejected' ? 'danger' : 'outline-danger'}
+                  size="sm"
+                  onClick={() => setLeaveTab('rejected')}
+                >Rejected</Button>
+              </div>
+              <Button variant="link" size="sm" style={{ fontWeight: 600 }} onClick={() => window.location.href = '/leaves-approval'}>
+                View All
+              </Button>
+            </div>
+            <Table
+              columns={leaveRequestColumns.filter(col => col.key !== 'actions')}
+              data={leaveRequests.filter(lr => leaveTab === 'all' ? true : lr.status === leaveTab)}
+              onRowClick={(row) => { }}
+            />
+          </Card>
+        </Col>
+        {/* On Leave Today */}
+        <Col xl={3}>
+          <Card className="p-3 h-100">
+            <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>On Leave Today</div>
+            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+              {leaveRequests.filter(lr => {
+                const today = new Date();
+                const from = new Date(lr.from);
+                const to = new Date(lr.to);
+                return today >= from && today <= to && lr.status === 'Approved';
+              }).length === 0 && (
+                  <div className="text-muted">No one is on leave today.</div>
+                )}
+              {leaveRequests.filter(lr => {
+                const today = new Date();
+                const from = new Date(lr.from);
+                const to = new Date(lr.to);
+                return today >= from && today <= to && lr.status === 'Approved';
+              }).map(lr => (
+                <Card key={lr.id} className="mb-2" style={{ borderLeft: '5px solid #4D49B3', background: '#f8f9fa' }}>
+                  <div style={{ fontWeight: 600 }}>{t(lr.employeeKey)}</div>
+                  <div style={{ fontSize: 13, color: '#4D49B3' }}>{t(lr.typeKey)}</div>
+                  <div style={{ fontSize: 12, color: '#888' }}>Return: {new Date(lr.to).toLocaleDateString()}</div>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+      {/* --- END NEW --- */}
 
       {/* Worksflow Overview */}
       <Row className="g-3">
@@ -304,29 +448,28 @@ const ManagerDashboard = () => {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
               }}
-              events={
-                events.map((event) => ({
-                  title: event.holiday_name || 'No Title',
-                  date: event.date,
-                  extendedProps: {
-                    day: event.day || 'no data',
-                    type: event.holiday_type || 'no data'
-                  }
-                }))
-              }
+              events={calendarEvents}
               eventDidMount={(info) => {
-                const day = info.event.extendedProps.day;
-                const type = info.event.extendedProps.type;
-
-                tippy(info.el, {
-                  content: `
-                  <strong>${info.event.holiday_name}</strong><br/>
-                  Day: ${day}<br/>
-        Type: ${type}
-      `,
-                  allowHTML: true,
-                  placement: 'top',
-                });
+                if (info.event.extendedProps.isHoliday) {
+                  tippy(info.el, {
+                    content: `
+                      <strong>${info.event.title}</strong><br/>
+                      Day: ${info.event.extendedProps.day}<br/>
+                      Type: ${info.event.extendedProps.type}
+                    `,
+                    allowHTML: true,
+                    placement: 'top',
+                  });
+                } else if (info.event.extendedProps.isLeave) {
+                  tippy(info.el, {
+                    content: `
+                      <strong>${info.event.title}</strong><br/>
+                      Type: ${info.event.extendedProps.type}
+                    `,
+                    allowHTML: true,
+                    placement: 'top',
+                  });
+                }
               }}
               height="auto"
             />
