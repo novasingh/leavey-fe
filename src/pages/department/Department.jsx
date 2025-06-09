@@ -97,6 +97,7 @@ const Department = () => {
                     <tr>
                       <th>Department Name</th>
                       <th>Manager Assigned</th>
+                      <th>Description</th>
                       <th>Number of Employees</th>
                       <th>Actions</th>
                     </tr>
@@ -106,6 +107,7 @@ const Department = () => {
                       <tr key={dept.id}>
                         <td><b>{dept.name}</b></td>
                         <td>{dept.manager_name}</td>
+                        <td>{dept.description}</td>
                         <td>{dept.total_employees}</td>
                         <td>
                           <Button

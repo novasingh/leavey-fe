@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { addLeaveTypes } from '../../services/leaveService'; // Use the renamed function
 
 const AddLeaveTypeModal = ({ show, onClose, onLeaveTypeAdded }) => {
-    const [formData, setFormData] = useState({ name: '', days: '', description: '' });
+    const [formData, setFormData] = useState({ name: '', days: '', description: '' , color: ''});
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
@@ -35,12 +35,16 @@ const AddLeaveTypeModal = ({ show, onClose, onLeaveTypeAdded }) => {
                         <Form.Control type="text" name="name" placeholder="e.g., Annual Leave" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Days per Year</Form.Label>
+                        <Form.Label className="fw-bold">Days</Form.Label>
                         <Form.Control type="number" name="days" placeholder="e.g., 12" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
                     <Form.Group className="mb-4">
                         <Form.Label className="fw-bold">Description</Form.Label>
                         <Form.Control as="textarea" name="description" rows={3} placeholder="Enter a short description" onChange={handleChange} style={{ borderRadius: 12 }} />
+                    </Form.Group>
+                    <Form.Group className="mb-5">
+                        <Form.Label className="fw-bold">Color</Form.Label>
+                        <Form.Control type="textarea" name="color" placeholder="e.g., #ffffff" onChange={handleChange} required style={{ borderRadius: 12 }} />
                     </Form.Group>
                     <div className="d-flex justify-content-between mt-4">
                         <Button variant="danger" onClick={onClose} style={{ borderRadius: 20, minWidth: 120, fontWeight: 500 }}>Cancel</Button>

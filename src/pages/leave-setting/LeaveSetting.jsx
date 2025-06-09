@@ -120,8 +120,9 @@ const LeaveSetting = () => {
                   <thead>
                     <tr>
                       <th>Leave Types</th>
-                      <th>Days per Year</th>
+                      <th>Days</th>
                       <th>Description</th>
+                      <th>Color</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -131,6 +132,7 @@ const LeaveSetting = () => {
                         <td><span className="fw-semibold ms-1">{lt.name}</span></td>
                         <td>{lt.days}</td>
                         <td>{lt.description}</td>
+                        <td>{lt.color}</td>
                         <td>
                           <Button size="sm" variant="success" className="me-2 custom-btn" onClick={() => handleEditClick(lt)}>Edit</Button>
                           <Button size="sm" variant="danger" className="custom-btn" onClick={() => handleDeleteClick(lt)}>Delete</Button>
@@ -149,7 +151,7 @@ const LeaveSetting = () => {
         <Col>
           <Card>
             <Card.Body>
-              <div className="fw-bold mb-3 fs-5">Leave Cycle Configuration</div>
+              <div className="fw-bold mb-3 fs-5">Additional Configuration</div>
               <Row>
                 <Col md={4} className="mb-3 mb-md-0">
                   <div className="fw-semibold mb-2">Working Hours</div>
