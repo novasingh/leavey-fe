@@ -71,34 +71,9 @@ const LeaveRequest = () => {
             return;
         }
 
-<<<<<<< HEAD
-  return (
-    <div className="leave-page">
-      {showSuccessModal && (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <div className="modal-icon">&#10004;</div>
-          <h3>Request Sent Successfully</h3>
-          <p>Your leave request has been submitted!</p>
-          <button
-            onClick={() => {
-              setShowSuccessModal(false);
-              setFormData({ leave_type: '', start_date: '', end_date: '', message: '', attachment: null });
-              navigate('/dashboard/employee');
-            }}
-          >OK</button>
-        </div>
-      </div>
-    )}
-      <div className="leave-header">
-        <h2>Leave Request</h2>
-        <p>Submit, track, or manage your leave applications with ease</p>
-      </div>
-=======
         // 2. Calculate the requested days
         const requestedDays = calculateDays(formData.start_date, formData.end_date);
         const allowedDays = selectedLeaveType.days; // Assuming your leaveTypes array has a 'days' property
->>>>>>> 4209de588cb216d30ec371700014656563e6bc12
 
         // 3. Validate days
         if (requestedDays > allowedDays) {
