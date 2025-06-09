@@ -3,6 +3,7 @@ import { Card, Table, StatusBadge } from '../../components';
 import { Button } from 'react-bootstrap';
 import { getLeave } from '../../services/leaveService';
 import { useNavigate } from 'react-router-dom';
+import './LeavesApproval.scss';
 
 const LeaveApproval = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -15,8 +16,13 @@ const LeaveApproval = () => {
   const fetchLeaveRequests = async () => {
     try {
       const data = await getLeave();
-      const formatted = data.map(item => ({
-        id: item.id,
+      
+      console.log('Raw leave data:', data);
+      const pendingData = data.filter(item => item.status === 'Pending'); 
+      const sortedData = pendingData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const formatted = pendingData.map(item => ({
+        id: item.request_id, // make sure this is here!
         employee: item.employee_name || 'Unknown',
         type: item.leave_type_name,
         from: item.start_date,
@@ -26,12 +32,14 @@ const LeaveApproval = () => {
         status: item.status,
         created: new Date(item.created_at).toLocaleDateString(),
       }));
+
       setLeaveRequests(formatted);
     } catch (err) {
       console.error('Error fetching leave requests:', err);
     }
   };
 
+  
   const columns = [
     { key: 'employee', title: 'Employee' },
     { key: 'type', title: 'Leave Type' },
@@ -45,18 +53,23 @@ const LeaveApproval = () => {
     },
     {
       key: 'view',
-      title: 'View',
-      render: row => (
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => navigate(`/leave-requests/${row.id}`)}
-        >
-          View
-        </Button>
-      )
+      title: '',
+      render: (row) => {
+        console.log("Navigating to:", `/leave-requests/${row.id}`); // check value
+ // confirm this prints id
+        return (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate(`/leave-requests/${row.id}`)}
+          >
+            View
+          </Button>
+        );
+      }
     }
-  ];
+];
+
 
   return (
     <div className="leave-approval-page">
@@ -68,6 +81,7 @@ const LeaveApproval = () => {
           columns={columns}
           data={leaveRequests}
           onRowClick={row => console.log('Clicked:', row)}
+          
         />
       </Card>
     </div>
@@ -75,3 +89,6 @@ const LeaveApproval = () => {
 };
 
 export default LeaveApproval;
+
+
+
