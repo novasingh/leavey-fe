@@ -109,14 +109,22 @@
 }
 
 .form-select {
+  width: auto;
+  min-width: 600px;
+  max-width: 100%;
   padding: 0.75rem 1rem;
+  padding-right: 2.5rem; // Space for arrow
   border-radius: 12px;
   border: 1px solid #ddd;
   font-size: 0.95rem;
-  background: #ffffff;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='30,50 70,90 110,50' fill='none' stroke='%23666' stroke-width='15'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
   color: #333;
-  flex: 1;
-  min-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
 }
 
 .leave-type-panel {

@@ -4,14 +4,6 @@ import { getLeaveTypes, addLeave } from '../../services/leaveService';
 import './LeaveRequests.scss';
 import { useNavigate } from 'react-router-dom';
 
-const colorMap = [
-    '#A259FF', // Marriage leave
-    '#00C48C', // Others
-    '#FF5C5C', // Emergency Leave
-    '#FFC233', // Sick Leave
-    '#6C63FF', // Annual Leave
-];
-
 const LeaveRequest = () => {
     const [leaveTypes, setLeaveTypes] = useState([]);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -165,23 +157,28 @@ const LeaveRequest = () => {
                         >
                             <option value="">Select Leave Type</option>
                             {leaveTypes.map((type) => (
-                                <option key={type.leave_type_id} value={type.leave_type_id}>
-                                    {type.name} ({type.days} days) {/* Display days for clarity */}
+                                <option
+                                    key={type.leave_type_id}
+                                    value={type.leave_type_id}
+                                >
+                                    {type.name}
                                 </option>
                             ))}
                         </select>
 
+
                         <div className="leave-type-panel">
                             {/* Dynamically render these based on leaveTypes data */}
-                            {leaveTypes.map((type, index) => (
+                            {leaveTypes.map((type) => (
                                 <div className="leave-type-row" key={type.leave_type_id}>
                                     <span
                                         className="leave-dot"
-                                        style={{ backgroundColor: colorMap[index % colorMap.length] }}
-                                    ></span>{' '}
-                                    {type.name}
+                                        style={{ backgroundColor: type.color }}
+                                    ></span>
+                                    <span className="leave-type-name">{type.name} ({type.days} days)</span>
                                 </div>
                             ))}
+
                         </div>
                     </div>
                 </div>
