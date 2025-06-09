@@ -25,7 +25,6 @@ const Sidebar = () => {
     { path: '/leave-requests', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },
     { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' },
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' },
-    { path: '/employees', icon: <FaUsers />, textKey: 'sidebar.employees', permission: 'employees' },
     { path: '/departments', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' },
     { path: '/role', icon: <FaUserTie />, textKey: 'sidebar.role', permission: 'role' },
     { path: '/leave-setting', icon: <FaCog />, textKey: 'sidebar.leaveSetting', permission: 'leave-setting' },
