@@ -35,6 +35,8 @@ const AdminDashboard = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const calendarRef = useRef(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0-based
+  // Add state to track calendar's current view date
+  const [calendarViewDate, setCalendarViewDate] = useState(new Date(selectedYear, selectedMonth, 1));
 
   useEffect(() => {
     // Fetch user info on mount
@@ -153,6 +155,11 @@ const AdminDashboard = () => {
     }
   }, [selectedYear, selectedMonth]);
 
+  // Update calendarViewDate when dropdowns change
+  useEffect(() => {
+    setCalendarViewDate(new Date(selectedYear, selectedMonth, 1));
+  }, [selectedYear, selectedMonth]);
+
   // --- Monthly Approved Leave Aggregation ---
   const approvedLeavesByMonth = Array(12).fill(0); // Jan to Dec
   leaveRequests.forEach(lr => {
@@ -196,32 +203,22 @@ const AdminDashboard = () => {
       };
     });
 
-  // NEW Upcoming Leaves
-  const upcomingLeaves = (leaveRequests || [])
-    .filter((leave) => {
-      if (!leave.from) return false;
-      const start = new Date(leave.from);
-      const now = new Date();
-      const isApproved = leave.status === 'Approved';
-      const isUpcoming = start > now;
-      return isApproved && isUpcoming;
-    })
-    .sort((a, b) => new Date(a.from) - new Date(b.from)) // Sort by start date
-    .slice(0, 1); // Take only the earliest one
-  console.log('Filtered upcoming leaves:', upcomingLeaves);
-
   // --- Calendar Events (with filter logic and correct color for Public Holiday) ---
   const leaveTypeColorMap = {};
   leaveType.forEach(type => {
     leaveTypeColorMap[type.name] = type.color || '#00905F';
   });
 
-  // Filter leave requests by selected year and department
+  // Filter leave requests by selected year, month, and department (overlapping logic)
   const filteredLeaveRequests = (leaveRequests ?? []).filter(leave => {
-    const leaveYear = new Date(leave.from).getFullYear();
-    const matchesYear = leaveYear === Number(selectedYear);
+    if (!leave.from || !leave.to) return false;
+    const leaveStart = new Date(leave.from);
+    const leaveEnd = new Date(leave.to);
+    const monthStart = new Date(selectedYear, selectedMonth, 1);
+    const monthEnd = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999); // last ms of month
     const matchesDept = !selectedDepartment || leave.department === selectedDepartment;
-    return matchesYear && matchesDept && leave.status === 'Approved';
+    const overlapsMonth = leaveEnd >= monthStart && leaveStart <= monthEnd;
+    return matchesDept && overlapsMonth && leave.status === 'Approved';
   });
 
   const filteredEvents = events.filter(event => {
@@ -235,7 +232,7 @@ const AdminDashboard = () => {
     const color = leaveTypeColorMap[leave.type] || '#4D49B3';
     return {
       title: leave.employee_name
-        ? `${leave.employee_name} - ${leave.type}`
+        ? `${leave.employee_name} - ${leave.type} - ${leave.department}`
         : leave.type || 'Leave',
       start: leave.from,
       end: leave.to,
@@ -245,6 +242,7 @@ const AdminDashboard = () => {
         type: 'Leave',
         leaveType: leave.type,
         employee: leave.employee_name,
+        department: leave.department,
         date: `${new Date(leave.from).toLocaleDateString('id-ID', {
           day: '2-digit',
           month: 'long',
@@ -262,7 +260,7 @@ const AdminDashboard = () => {
   const holidayEvents = filteredEvents.map(event => ({
     title: event.holiday_name || 'Holiday',
     start: event.date,
-    color: event.holiday_type === 'Public Holiday' ? '#222' : '#C31818',
+    color: event.holiday_type === 'Public Holiday' ? '#222' : '#212122',
     allDay: true,
     extendedProps: {
       type: event.holiday_type || 'Holiday',
@@ -319,37 +317,31 @@ const AdminDashboard = () => {
         <h5 style={{ fontWeight: 'bold', marginBottom: '0.7rem' }}>List of Department</h5>
       </div>
 
-      {/* Stats Cards */}
-      <Row>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        overflowY: 'auto',
+        scrollbarWidth: 'none',    // Firefox
+        msOverflowStyle: 'none',        // IE/Edge
+        minHeight: '230px',
+        height: 'auto'
+      }}>
         {departments.length > 0 ? (
           departments.map((dept) => {
-            const deptEmojis = {
-              'Human Resources': '🧑‍💼',
-              'Operations': '⚙️',
-              'Finance': '💰',
-              'Information Technology': '💻',
-              'Administration': '🎧',
-            };
-            const emoji = deptEmojis[dept.name] || '🏢';
+            const icon = dept.icon || '🏢';
             return (
-              <Col xs={12} md={6} lg={4} xl={3} key={dept.id} style={{ display: 'flex' }}>
+              <Col key={dept.id} style={{ display: 'flex', gap: '1rem', padding: '0.5rem', flex: '0 0 auto' }}>
                 <Card
                   className="stat-card department-card"
                   style={{
                     border: 'none',
-                    borderRadius: 18,
                     boxShadow: '0 2px 16px #e6e8f0',
                     transition: 'box-shadow 0.2s',
-                    minHeight: 200,
-                    height: 200,
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
                     marginBottom: 0,
-                    padding: 0,
+                    padding: '100px',
                   }}
                 >
-                  <div className="d-flex align-items-center gap-3 w-100" style={{ padding: 24 }}>
+                  <div className="d-flex gap-1 w-100" style={{ padding: 20 }}>
                     {/* Emoji Icon with circle and stroke */}
                     <div
                       className="emoji-icon flex-shrink-0"
@@ -364,7 +356,7 @@ const AdminDashboard = () => {
                         border: '2px solid #e0e0f0',
                       }}
                     >
-                      <span role="img" aria-label="Department Icon" style={{ fontSize: 40 }}>{emoji}</span>
+                      <span role="img" aria-label="Department Icon" style={{ fontSize: 40 }}>{icon}</span>
                     </div>
                     {/* Department Info */}
                     <div className="ms-2" style={{ flex: 1 }}>
@@ -376,7 +368,7 @@ const AdminDashboard = () => {
                         <span role="img" aria-label="Manager">🧑‍💼</span> Manager: <b>{dept.manager_name}</b>
                       </p>
                       <p className="mb-0" style={{ fontSize: 14, color: '#888' }}>
-                        <span role="img" aria-label="Updated">🔄</span> Last Updated: {dept.updated_at}
+                        <span role="img" aria-label="Updated">🔄</span> Last Updated: {formatDateDMY(dept.updated_at)}
                       </p>
                     </div>
                   </div>
@@ -387,7 +379,7 @@ const AdminDashboard = () => {
         ) : (
           <Col><p>No departments available.</p></Col>
         )}
-      </Row>
+      </div>
 
       {/* Leave Requests Overview */}
       <Row className="g-3">
@@ -396,7 +388,7 @@ const AdminDashboard = () => {
             <div style={{ padding: 24 }}>
               <div className="d-flex flex-wrap align-items-center justify-content-between mb-3" style={{ gap: 16 }}>
                 <div>
-                  <h5 style={{ fontWeight: 'bold', marginBottom: 0 }}>📅 Leave Types Per Month</h5>
+                  <h5 style={{ fontWeight: 'bold', marginBottom: 0 }}>📊 Leaves Overview</h5>
                   <p style={{ marginBottom: 0, color: '#666' }}>
                     Number of leave requests per type, per month
                   </p>
@@ -439,6 +431,7 @@ const AdminDashboard = () => {
             </div>
           </Card>
         </Col>
+
         {/* Types */}
         <Col lg={3}>
           <div className="d-flex flex-column h-100">
@@ -453,137 +446,215 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Content */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {leaveType.length > 0 ? (
-                leaveType.map((type) => (
-                  <div
-                    className="leave-type-row"
-                    key={type.leave_type_id || type.id || type.name}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      background: '#fff',
-                      borderRadius: 10,
-                      boxShadow: '0 1px 4px #ececec',
-                      padding: '12px 18px',
-                      marginBottom: 0,
-                      transition: 'box-shadow 0.2s',
-                      cursor: 'pointer',
-                      borderLeft: `6px solid ${type.color}`,
-                    }}
-                  >
-                    <span
-                      className="leave-dot"
-                      style={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: '50%',
-                        backgroundColor: type.color,
-                        display: 'inline-block',
-                        marginRight: 1,
-                        border: '2px solid #f8f9fb',
-                        boxShadow: '0 0 0 2px #fff',
-                      }}
-                    ></span>
-                    <span className="leave-type-name" style={{ fontWeight: 600, fontSize: 16, color: '#333', flex: 1 }}>
-                      {type.name}
-                    </span>
-                    <span style={{
-                      background: '#f1f3fa',
-                      color: '#4D49B3',
-                      fontWeight: 700,
-                      fontSize: 13,
-                      borderRadius: 8,
-                      padding: '4px 12px',
-                      marginLeft: 10,
-                      letterSpacing: 0.5,
-                    }}>{type.days} days</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-muted">No leave types found.</div>
-              )}
-            </div>
+            <Card>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 16, minHeight: '300px', height: '650px', maxHeight: '650px' }}>
+                {leaveType.length > 0 ? (
+                  leaveType.map((type) => (
+                    <div className="leave-type-row"
+                      key={type.leave_type_id || type.id || type.name}>
+                      <span
+                        className="leave-dot"
+                        style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          backgroundColor: type.color,
+                          display: 'inline-block',
+                          marginRight: 1,
+                        }}
+                      ></span>
+                      <span className="leave-type-name" style={{ fontWeight: 600, fontSize: 16, color: '#333', flex: 1 }}>
+                        {type.name}
+                      </span>
+                      <span style={{
+                        background: '#f1f3fa',
+                        color: '#4D49B3',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        borderRadius: 8,
+                        padding: '4px 12px',
+                        marginLeft: 10,
+                        letterSpacing: 0.5,
+                      }}>{type.days} days</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-muted">No leave types found.</div>
+                )}
+              </div>
+            </Card>
           </div>
         </Col>
       </Row>
 
       {/* Holiday Calendar */}
       <Row className="g-1">
+        <div className="department-list-header mb-2">
+          <h5 style={{ fontWeight: 'bold', marginTop: '0.5rem' }}>📅 Team Calendar</h5>
+          <p style={{ marginBottom: '0rem', color: '#666' }}>
+            Keep track of holidays and team leave days
+          </p>
+        </div>
+        
         <Col>
-          <div className="calendar-modern-container" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px #e6e8f0', padding: 32, marginBottom: 24 }}>
-            <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap">
-              <div>
-                <h5 style={{ fontWeight: 'bold', marginBottom: 0,}}>📅 Holiday & Leave Calendar</h5>
-                <p style={{ margin: 0, color: '#666', fontSize: 15 }}>View all holidays and approved leaves at a glance in a unified calendar layout</p>
+          <div className="calendar-modern-container" style={{ background: '#fff', borderRadius: 10, boxShadow: '0 2px 16px #e6e8f0', padding: 32, marginBottom: 24 }}>
+            {/* Header: Month/Year label with custom prev/next buttons and filters */}
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              {/* Month First + Custom Prev/Next */}
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  aria-label="Previous Month"
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: '#4D49B3',
+                    color: '#fff',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    boxShadow: '0 1px 4px #e6e8f0',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    let prevMonth = selectedMonth - 1;
+                    let year = selectedYear;
+                    if (prevMonth < 0) {
+                      prevMonth = 11;
+                      year = selectedYear - 1;
+                    }
+                    setSelectedMonth(prevMonth);
+                    setSelectedYear(year);
+                    setCalendarViewDate(new Date(year, prevMonth, 1));
+                    if (calendarRef.current) {
+                      calendarRef.current.getApi().gotoDate(new Date(year, prevMonth, 1));
+                    }
+                  }}
+                >
+                  {/* Smooth left chevron SVG */}
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 16L8 10L13 4" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <button
+                  aria-label="Next Month"
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: '#4D49B3',
+                    color: '#fff',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    boxShadow: '0 1px 4px #e6e8f0',
+                    marginRight: 8,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    let nextMonth = selectedMonth + 1;
+                    let year = selectedYear;
+                    if (nextMonth > 11) {
+                      nextMonth = 0;
+                      year = selectedYear + 1;
+                    }
+                    setSelectedMonth(nextMonth);
+                    setSelectedYear(year);
+                    setCalendarViewDate(new Date(year, nextMonth, 1));
+                    if (calendarRef.current) {
+                      calendarRef.current.getApi().gotoDate(new Date(year, nextMonth, 1));
+                    }
+                  }}
+                >
+                  {/* Smooth right chevron SVG */}
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 4L12 10L7 16" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <div style={{ fontWeight: 700, fontSize: 22, color: '#4D49B3', whiteSpace: 'nowrap' }}>
+                  {months[calendarViewDate.getMonth()]} {calendarViewDate.getFullYear()}
+                </div>
               </div>
-              {/* Legend */}
-              <div className="d-flex align-items-center gap-3 flex-wrap" style={{ fontSize: 14 }}>
-                <div className="d-flex align-items-center gap-1">
-                  <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: '#222', marginRight: 4, border: '2px solid #fff', boxShadow: '0 0 0 1.5px #e6e8f0' }}></span>
-                  <span>Public Holiday</span>
-                </div>
-                <div className="d-flex align-items-center gap-1">
-                  <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: '#C31818', marginRight: 4, border: '2px solid #fff', boxShadow: '0 0 0 1.5px #e6e8f0' }}></span>
-                  <span>Other Holiday</span>
-                </div>
-                {leaveType.map(type => (
-                  <div key={type.name} className="d-flex align-items-center gap-1">
-                    <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: type.color, marginRight: 4, border: '2px solid #fff', boxShadow: '0 0 0 1.5px #e6e8f0' }}></span>
-                    <span>{type.name}</span>
-                  </div>
-                ))}
+              {/* Filter */}
+              <div className="d-flex align-items-center gap-2 flex-wrap">
+                <Button
+                  variant="outline-dark"
+                  size="sm"
+                  style={{ fontWeight: 600 }}
+                  onClick={() => {
+                    const today = new Date();
+                    setSelectedYear(today.getFullYear());
+                    setSelectedMonth(today.getMonth());
+                    setCalendarViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
+                    if (calendarRef.current) {
+                      calendarRef.current.getApi().gotoDate(today);
+                    }
+                  }}
+                >Today</Button>
+                <Form.Select
+                  size="sm"
+                  style={{ width: 180, borderRadius: 8, fontWeight: 500 }}
+                  value={selectedDepartment}
+                  onChange={e => setSelectedDepartment(e.target.value)}
+                >
+                  <option value="">All Departments</option>
+                  {departments.map(d => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </Form.Select>
+
+                <Form.Select
+                  size="sm"
+                  style={{ width: 120, borderRadius: 8, fontWeight: 500 }}
+                  value={selectedYear}
+                  onChange={e => {
+                    setSelectedYear(Number(e.target.value));
+                    setCalendarViewDate(new Date(Number(e.target.value), selectedMonth, 1));
+                  }}
+                >
+                  {years.map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </Form.Select>
+                <Form.Select
+                  size="sm"
+                  style={{ width: 120, borderRadius: 8, fontWeight: 500 }}
+                  value={selectedMonth}
+                  onChange={e => {
+                    setSelectedMonth(Number(e.target.value));
+                    setCalendarViewDate(new Date(selectedYear, Number(e.target.value), 1));
+                  }}
+                >
+                  {months.map((m, idx) => (
+                    <option key={m} value={idx}>{m}</option>
+                  ))}
+                </Form.Select>
               </div>
             </div>
-            {/* Filters */}
-            <div className="d-flex gap-2 mb-3 flex-wrap justify-content-end">
-              <Form.Select
-                size="sm"
-                style={{ width: 180, borderRadius: 8, fontWeight: 500 }}
-                value={selectedDepartment}
-                onChange={e => setSelectedDepartment(e.target.value)}
-              >
-                <option value="">All Departments</option>
-                {departments.map(d => (
-                  <option key={d.id} value={d.name}>{d.name}</option>
-                ))}
-              </Form.Select>
-              <Form.Select
-                size="sm"
-                style={{ width: 120, borderRadius: 8, fontWeight: 500 }}
-                value={selectedYear}
-                onChange={e => setSelectedYear(Number(e.target.value))}
-              >
-                {years.map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </Form.Select>
-              <Form.Select
-                size="sm"
-                style={{ width: 120, borderRadius: 8, fontWeight: 500 }}
-                value={selectedMonth}
-                onChange={e => setSelectedMonth(Number(e.target.value))}
-              >
-                {months.map((m, idx) => (
-                  <option key={m} value={idx}>{m}</option>
-                ))}
-              </Form.Select>
-            </div>
-            <div style={{ border: '1.5px solid #e6e8f0', borderRadius: 14, background: '#f8f9fb', padding: 12 }}>
+            <div style={{ padding: 12 }}>
               <FullCalendar
                 ref={calendarRef}
-                plugins={[dayGridPlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 events={calendarEvents}
+                headerToolbar={{
+                  left: '',
+                  center: '',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                }}
                 eventDidMount={(info) => {
-                  const { type, day, date, leaveType, employee } = info.event.extendedProps;
+                  const { type, day, date, leaveType, employee, department } = info.event.extendedProps;
                   let tooltipContent;
                   if (type === 'Leave') {
                     tooltipContent = `
                       <div style='font-weight:bold;'>${info.event.title}</div>
                       <div><b>Type:</b> ${leaveType || '-'}</div>
                       <div><b>Employee:</b> ${employee || '-'}</div>
+                      <div><b>Department:</b> ${department || '-'}</div>
                       <div><b>Total Days:</b> ${day}</div>
                       <div><b>Date:</b> ${date}</div>
                     `;
@@ -611,8 +682,27 @@ const AdminDashboard = () => {
                     tip[0]?.hide && tip[0].hide();
                   });
                 }}
+                dateSet={arg => {
+                  setSelectedMonth(arg.start.getMonth());
+                  setSelectedYear(arg.start.getFullYear());
+                  setCalendarViewDate(new Date(arg.start.getFullYear(), arg.start.getMonth(), 1));
+                }}
                 height="auto"
               />
+              {/* Legend below calendar, with circle indicators */}
+              <div className="d-flex align-items-center gap-3 flex-wrap mt-3" style={{ fontSize: 14 }}>
+                <div className="d-flex align-items-center gap-1">
+                  <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: '50%', background: '#222', marginRight: 4, border: '2px solid #fff', boxShadow: '0 0 0 1.5px #e6e8f0' }}></span>
+                  <span>Public Holiday and Company Event</span>
+                </div>
+                {/* Add leave type color legend dynamically */}
+                {leaveType && leaveType.length > 0 && leaveType.map(type => (
+                  <div key={type.name} className="d-flex align-items-center gap-1">
+                    <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: '50%', background: type.color, marginRight: 4, border: '2px solid #fff', boxShadow: '0 0 0 1.5px #e6e8f0' }}></span>
+                    <span>{type.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Col>
@@ -627,12 +717,14 @@ const AdminDashboard = () => {
               See what holidays are coming soon
             </p>
           </div>
-          <Card style={{ borderRadius: 16, boxShadow: '0 2px 12px #e6e8f0', background: '#fff', padding: 0 }}>
+          <Card style={{ borderRadius: 10, boxShadow: '0 2px 12px #e6e8f0', background: '#fff', padding: 0 }}>
             <div style={{
-              height: '300px',
               overflowY: 'auto',
               scrollbarWidth: 'none',        // Firefox
-              msOverflowStyle: 'none'        // IE/Edge
+              msOverflowStyle: 'none',        // IE/Edge
+              minHeight: '270px',
+              height: '400px',
+              maxHeight: '500px'
             }}>
               <table className="table table-borderless align-middle mb-0" style={{ minWidth: 520, gap: 5 }}>
                 <thead style={{ background: '#f8f9fb', position: 'sticky', top: 0, zIndex: 2 }}>
@@ -647,14 +739,14 @@ const AdminDashboard = () => {
                   {upcomingHolidays.length > 0 ? (
                     upcomingHolidays.map((event, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid #f0f1f2' }}>
-                        <td style={{ padding: '12px 16px'}}>{event.date}</td>
+                        <td style={{ padding: '12px 16px' }}>{event.date}</td>
                         <td style={{ padding: '12px 16px', fontWeight: 600 }}>{event.day}</td>
                         <td style={{ padding: '12px 16px', fontWeight: 500 }}>{event.name}</td>
                         <td style={{ padding: '12px 16px' }}>
                           <span
                             style={{
-                              background: event.type === 'Public Holiday' ? '#FFF4E5' : event.type === 'Company Holiday' ? '#222' : '#f1f3fa',
-                              color: event.type === 'Public Holiday' ? '#FF9800' : event.type === 'Company Holiday' ? '#fff' : '#4D49B3',
+                              background: '#d6d6d6',
+                              color: '#212122',
                               fontWeight: 700,
                               borderRadius: 8,
                               padding: '4px 12px',
@@ -776,4 +868,13 @@ function getActiveDaysText(settings) {
   if (settings.is_weekday_workday) days.push('Monday to Friday');
   if (settings.is_weekend_workday) days.push('Saturday to Sunday');
   return days.length ? days.join(', ') : 'N/A';
+}
+function formatDateDMY(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'short' });
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
 }
