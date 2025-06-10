@@ -357,8 +357,8 @@ const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* Month and Year Filter
-      <div className="d-flex justify-content-center mb-3 gap-3 w-100">
+      {/* Month and Year Filter */}
+      {/* <div className="d-flex justify-content-center mb-3 gap-3 w-100">
         
         <Form.Select
           value={selectedMonth}
@@ -416,7 +416,7 @@ const EmployeeDashboard = () => {
               if (!isApproved) return;
               const type = lr.type;
               const startDate = new Date(lr.start);
-              const leaveMonth = startDate.getMonth() + 1;
+              const leaveMonth = startDate.getMonth();
               const leaveYear = startDate.getFullYear();
               const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(type);
 
@@ -559,9 +559,6 @@ const EmployeeDashboard = () => {
                   {leaveRequests.length}
                 </div>
               </div>
-              <Button variant="outline-primary" size="sm">
-                {'View All'}
-              </Button>
             </div>
 
             {/* NEW Scrollable Table */}
@@ -592,7 +589,7 @@ const EmployeeDashboard = () => {
                     onClick={() => setLeaveTab('Rejected')}
                   >Rejected</Button>
                 </div>
-                <Button variant='outline-dark' size="m" onClick={() => window.location.href = '/leaves-approval'}>
+                <Button variant='outline-dark' size="m" onClick={() => window.location.href = '#'}>
                   View All
                 </Button>
               </div>
