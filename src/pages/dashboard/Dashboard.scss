@@ -149,6 +149,12 @@
     font-size: 1.5rem;
   }
 
+  .emoji-stroke {
+    border: 2.5px solid #4D49B3; /* Main theme color, adjust as needed */
+    box-shadow: 0 2px 8px #000000;
+  }
+  
+//Used in Manager and Employee
   .events-list {
     .event-item {
       display: flex;
@@ -183,7 +189,6 @@
           background-color: var(--bs-success);
         }
       }
-
       .event-content {
         flex: 1;
 
@@ -198,52 +203,6 @@
           font-size: 0.75rem;
           display: flex;
           align-items: center;
-        }
-      }
-    }
-  }
-
-  .team-list {
-    .team-member {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
-      &:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-      }
-
-      &:first-child {
-        padding-top: 0;
-      }
-
-      .member-avatar {
-        width: 40px;
-        height: 40px;
-        background-color: var(--bs-primary);
-        color: #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-      }
-
-      .member-info {
-        flex: 1;
-        padding: 0 15px;
-
-        .member-name {
-          font-size: 0.875rem;
-          font-weight: 600;
-          margin-bottom: 2px;
-        }
-
-        .member-position {
-          color: var(--bs-gray-600);
-          font-size: 0.75rem;
         }
       }
     }

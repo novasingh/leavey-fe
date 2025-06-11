@@ -96,6 +96,7 @@ const Department = () => {
                   <thead>
                     <tr>
                       <th>Department Name</th>
+                      <th>Icon</th>
                       <th>Manager Assigned</th>
                       <th>Description</th>
                       <th>Number of Employees</th>
@@ -105,7 +106,12 @@ const Department = () => {
                   <tbody>
                     {departments?.map((dept) => (
                       <tr key={dept.id}>
-                        <td><b>{dept.name}</b></td>
+                        <td>
+                          <b>{dept.name}</b>
+                        </td>
+                        <td>
+                          <span className="fs-5">{dept.icon}</span>
+                        </td>
                         <td>{dept.manager_name}</td>
                         <td>{dept.description}</td>
                         <td>{dept.total_employees}</td>

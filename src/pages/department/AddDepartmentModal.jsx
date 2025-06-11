@@ -1,38 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-
-import { getManagers, addDepartment } from '../../services/departmentService';
+import EmojiPicker from 'emoji-picker-react';
+import { addDepartment } from '../../services/departmentService';
 
 const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
+
     const [form, setForm] = useState({
         name: '',
-        manager: '',
+        description: '',
+        icon: ''
     });
-    const [managers, setManagers] = useState([]);
 
-    useEffect(() => {
-        if (show) {
-            const fetchManagers = async () => {
-                try {
-                    const data = await getManagers();
-
-                    if (Array.isArray(data)) {
-                        setManagers(data);
-                    } else {
-                        console.warn("Data from getManagers was not an array:", data);
-                        setManagers([]);
-                    }
-                } catch (error) {
-                    console.error('Error fetching managers:', error);
-                    setManagers([]);
-                }
-            };
-            fetchManagers();
-        }
-    }, [show]);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const onEmojiClick = (emojiObject) => {
+        setForm(prevForm => ({ ...prevForm, icon: emojiObject.emoji }));
+        setShowEmojiPicker(false);
     };
 
     const handleSubmit = async (e) => {
@@ -65,24 +52,36 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
                             style={{ borderRadius: 8, fontSize: 15 }}
                         />
                     </Form.Group>
-                    <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold mb-2">Assign Manager</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="manager"
-                            value={form.manager}
-                            onChange={handleChange}
-                            required
-                            style={{ borderRadius: 8, fontSize: 15 }}
+                    <Form.Group className="mb-3 d-flex align-items-center">
+                        <Form.Label className="fw-bold mb-0 me-3">Icon:</Form.Label>
+                        <Button
+                            variant="outline-secondary"
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                            style={{ borderRadius: 12, height: '38px', minWidth: '100px' }}
                         >
-                            <option value="">Select a Manager</option>
-                            {managers.map((manager) => (
-                                <option key={manager.id} value={manager.id}>
-                                    {manager.full_name}
-                                </option>
-                            ))}
-                        </Form.Control>
+                            {form.icon ? form.icon : 'Choose'}
+                        </Button>
                     </Form.Group>
+
+                    {showEmojiPicker && (
+                        <div className="d-flex justify-content-center mb-3">
+                            <EmojiPicker onEmojiClick={onEmojiClick} />
+                        </div>
+                    )}
+
+                    <Form.Group className="mb-4">
+                        <Form.Label className="fw-bold mb-2">Description: </Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            placeholder="Enter a short description for the department"
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            style={{ borderRadius: 8, fontSize: 15 }}
+                        />
+                    </Form.Group>
+
                     <div className="d-flex justify-content-between mt-4">
                         <Button variant="danger" onClick={onClose} style={{ borderRadius: 20, minWidth: 110, fontWeight: 500, fontSize: 16 }}>Cancel</Button>
                         <Button type="submit" variant="primary" style={{ borderRadius: 20, minWidth: 110, fontWeight: 500, fontSize: 16 }}>Add</Button>
@@ -94,4 +93,3 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
 };
 
 export default AddDepartmentModal;
-
