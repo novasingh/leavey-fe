@@ -1,29 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import EmojiPicker from 'emoji-picker-react';
-import { getManagers, updateDepartment } from '../../services/departmentService';
+import { updateDepartment } from '../../services/departmentService';
 
 const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToEdit }) => {
 
     const [form, setForm] = useState({ name: '', manager: '', description: '', icon: '' });
-    const [managers, setManagers] = useState([]);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-    useEffect(() => {
-        if (show) {
-            const fetchManagers = async () => {
-                try {
-                    const data = await getManagers();
-                    if (Array.isArray(data)) {
-                        setManagers(data);
-                    }
-                } catch (error) {
-                    console.error('Error fetching managers:', error);
-                }
-            };
-            fetchManagers();
-        }
-    }, [show]);
 
     useEffect(() => {
         if (departmentToEdit) {
@@ -52,8 +35,8 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
 
         try {
 
-            const updatedDepartment = await updateDepartment(departmentToEdit.id, form);
-            onDepartmentUpdated(updatedDepartment);
+            await updateDepartment(departmentToEdit.id, form);
+            onDepartmentUpdated();
             onClose();
         } catch (error) {
             console.error('Error updating department:', error);
@@ -105,23 +88,15 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             onChange={handleChange}
                         />
                     </Form.Group>
-
-                    <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold">Assign Manager:</Form.Label>
-                        <Form.Select
-                            name="manager"
-                            value={form.manager}
-                            onChange={handleChange}
-                            required
-                            style={{ borderRadius: 12 }}
-                        >
-                            <option value="">Select a Manager</option>
-                            {managers.map((manager) => (
-                                <option key={manager.id} value={manager.id}>
-                                    {manager.full_name}
-                                </option>
-                            ))}
-                        </Form.Select>
+                    <Form.Group className="mb-4 d-flex align-items-center">
+                        <Form.Label className="fw-bold mb-0 me-3" style={{ flex: '0 0 170px' }}>Assign Manager:</Form.Label>
+                        <Form.Control
+                            type="text"
+                            readOnly
+                            plaintext
+                            value={departmentToEdit?.manager_name || 'No Manager Assigned'}
+                            className="text-end"
+                        />
                     </Form.Group>
                     <div className="d-flex justify-content-between mt-4">
                         <Button variant="danger" onClick={onClose} style={{ borderRadius: 20, minWidth: 110, fontWeight: 500, fontSize: 16 }}>Cancel</Button>
