@@ -1,4 +1,5 @@
-import { Navbar, Nav, Dropdown, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Navbar, Nav, Dropdown, Button, Image } from 'react-bootstrap';
 import { FaBell, FaUser } from 'react-icons/fa';
 import './Header.scss';
 import logo from '../../assets/images/logo.png';
@@ -9,6 +10,17 @@ import authService from '../../services/authService';
 const Header = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(authService.getUser());
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setCurrentUser(authService.getUser());
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
 
   const changeLanguage = (lng) => {
     console.log(lng);
@@ -21,7 +33,13 @@ const Header = () => {
     navigate('/login');
   };
 
-  const userRole = authService.getUserRole()
+  const userRole = currentUser?.role_details?.name || authService.getUserRole();
+
+  const profilePictureUrl = currentUser?.profile_picture
+    ? `${currentUser.profile_picture}?t=${new Date().getTime()}`
+    : `https://ui-avatars.com/api/?name=${currentUser?.first_name}+${currentUser?.last_name}&background=eeeeee&color=5B4B8A`;
+
+
   return (
     <header className="app-header px-3">
       <Navbar expand="lg" className="p-0 align-items-center">
@@ -60,9 +78,9 @@ const Header = () => {
               {i18n.language === 'zh' && t('header.lang.zhShort')}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => changeLanguage('en')}>{t('header.lang.english')}</Dropdown.Item> {/* Changed */}
-              <Dropdown.Item onClick={() => changeLanguage('ms')}>{t('header.lang.malay')}</Dropdown.Item> {/* Changed */}
-              <Dropdown.Item onClick={() => changeLanguage('zh')}>{t('header.lang.chinese')}</Dropdown.Item> {/* Changed */}
+              <Dropdown.Item onClick={() => changeLanguage('en')}>{t('header.lang.english')}</Dropdown.Item>
+              <Dropdown.Item onClick={() => changeLanguage('ms')}>{t('header.lang.malay')}</Dropdown.Item>
+              <Dropdown.Item onClick={() => changeLanguage('zh')}>{t('header.lang.chinese')}</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -75,28 +93,28 @@ const Header = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <div className="notification-header">
-                <h6 className="mb-0">{t('header.notifications.title')}</h6> {/* Changed */}
-                <small className="text-muted">{t('header.notifications.newCount', { count: 3 })}</small> {/* Changed */}
+                <h6 className="mb-0">{t('header.notifications.title')}</h6>
+                <small className="text-muted">{t('header.notifications.newCount', { count: 3 })}</small>
               </div>
               <Dropdown.Item href="#/action-1">
                 <div className="notification-item">
                   <div className="notification-content">
-                    <p className="mb-0">{t('header.notifications.sample.leaveApproved')}</p> {/* Changed */}
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: '2 hours' })}</small> {/* Changed */}
+                    <p className="mb-0">{t('header.notifications.sample.leaveApproved')}</p>
+                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: '2 hours' })}</small>
                   </div>
                 </div>
               </Dropdown.Item>
               <Dropdown.Item href="#/action-2">
                 <div className="notification-item">
                   <div className="notification-content">
-                    <p className="mb-0">{t('header.notifications.sample.newTeamMember')}</p> {/* Changed */}
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: 'Yesterday' })}</small> {/* Changed */}
+                    <p className="mb-0">{t('header.notifications.sample.newTeamMember')}</p>
+                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: 'Yesterday' })}</small>
                   </div>
                 </div>
               </Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item as={Link} to="/notifications" className="text-center">
-                <small>{t('header.notifications.viewAll')}</small> {/* Changed */}
+                <small>{t('header.notifications.viewAll')}</small>
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
@@ -104,10 +122,14 @@ const Header = () => {
           <Dropdown align="end" className="user-dropdown">
             <Dropdown.Toggle variant="link" id="user-dropdown" className="p-0">
               <div className="avatar">
-                {/* Placeholder for user image or initials */}
-                <FaUser />
+                <Image
+                  src={profilePictureUrl}
+                  roundedCircle
+                  style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                />
               </div>
-            </Dropdown.Toggle>            <Dropdown.Menu>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
               <Dropdown.Item as={Link} to="/profile">
                 <FaUser className="me-2" /> {t('header.user.profile')}
               </Dropdown.Item>
