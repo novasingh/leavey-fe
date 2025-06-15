@@ -1,10 +1,10 @@
-@import './_variables.scss';
-@import './_mixins.scss';
+@use './_variables.scss' as *;
+@use './_mixins.scss' as *;
+@use './utility.scss' as *;
+@use './_buttons.scss' as *;
 @import '@fontsource/montserrat/400.css';
 @import '@fontsource/montserrat/700.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@import './utility.scss';
-@import './_buttons.scss';
 
 :root {
   --bs-body-font-family: 'Montserrat', Arial, sans-serif;
