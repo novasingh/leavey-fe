@@ -2,3 +2,43 @@
 .faq-page {
   // Add styles if needed
 }
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.faq-box {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.04);
+  padding: 1.5rem 2rem;
+  transition: box-shadow 0.2s;
+}
+
+.faq-box:hover {
+  box-shadow: 0 4px 16px rgba(60,60,60,0.10);
+}
+
+.faq-question {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #2d2d2d;
+}
+
+.faq-answer {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.faq-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #333;
+}

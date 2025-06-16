@@ -102,6 +102,7 @@ const AdminDashboard = () => {
     const fetchLeaveRequests = async () => {
       try {
         const data = await getLeave();
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         // Enrich leave requests with department name from users
         const formatted = data.map(item => {
           const user = users.find(u => `${u.first_name} ${u.last_name}` === item.employee_name);

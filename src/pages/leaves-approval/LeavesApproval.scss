@@ -200,6 +200,26 @@
   }
 }
 
+#approval-pdf-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.leave-approval-page .btn-outline-dark {
+  
+  border: 1px solid #4D49B3;
+  color: #4D49B3;
+  &:hover {
+    background-color: #4D49B3;
+    color: white;
+  }
+}
+
 /* Attachment View Button */
 .view-attachment-button {
   display: inline-flex;
@@ -207,7 +227,7 @@
   justify-content: center;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  background-color: #6C63FF; // Purple color
+  background-color: #4D49B3; // Purple color
   color: white;
   text-decoration: none;
   font-weight: 600;

@@ -22,13 +22,13 @@ const Sidebar = () => {
 
   // Define all menu items with their required permissions
   const allMenuItems = [
-    { path: '/leave-requests', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },
+    { path: '/my-leaves', icon: <IoPaperPlane />, textKey: 'sidebar.myLeaves', permission: 'my-leaves' },
     { path: '/leaves-approval', icon: <IoPaperPlane />, textKey: 'sidebar.leavesApproval', permission: 'leaves-approval' },
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' },
     { path: '/departments', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' },
     { path: '/role', icon: <FaUserTie />, textKey: 'sidebar.role', permission: 'role' },
     { path: '/leave-setting', icon: <FaCog />, textKey: 'sidebar.leaveSetting', permission: 'leave-setting' },
-    { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar', permission: 'calender' },
+   // { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar', permission: 'calender' },
     { path: '/faq', icon: <BsFillChatLeftQuoteFill />, textKey: 'sidebar.faq', permission: 'faq' },
   ];
 

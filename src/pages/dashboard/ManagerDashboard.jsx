@@ -110,6 +110,7 @@ const ManagerDashboard = () => {
         const deptUsers = users.filter(u => u.department && u.department.id === managerDeptId);
         const deptUserIds = deptUsers.map(u => u.id);
         // Enrich leave requests with department name from users, and filter by department ID
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         const formatted = data
           .map(item => {
             const userObj = users.find(u => `${u.first_name} ${u.last_name}` === item.employee_name);

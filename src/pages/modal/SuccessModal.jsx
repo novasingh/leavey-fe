@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 
 const SuccessModal = ({ show, onClose, title, message }) => {
     return (
@@ -12,7 +12,14 @@ const SuccessModal = ({ show, onClose, title, message }) => {
                     </svg>
                 </div>
                 <h5 className="fw-bold mb-2">{title || 'Done!'}</h5>
-                <p className="text-muted mb-0">{message}</p>
+                <p className="text-muted mb-4">{message}</p>
+                <Button
+                    variant="success"
+                    onClick={onClose}
+                    className="px-4 py-2 rounded-4"
+                >
+                    OK
+                </Button>
             </Modal.Body>
         </Modal>
     );

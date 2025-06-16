@@ -11,6 +11,7 @@ import LeavesApprovalDetail from './pages/leaves-approval/LeavesApprovalDetail';
 import { Reports } from './pages/reports';
 import { Documents } from './pages/documents';
 import { Settings } from './pages/settings';
+import { MyLeaves } from './pages/my-leaves';
 import { Faq } from './pages/faq';
 import { Profile } from './pages/profile';
 import { Notifications } from './pages/notifications';
@@ -20,7 +21,6 @@ import { Department } from './pages/department';
 import { Role } from './pages/role';
 import { LeaveSetting } from './pages/leave-setting';
 import { Employees } from './pages/employees';
-import { MyLeaves } from './pages/my-leaves';
 import MainLayout from './layouts/MainLayout'
 import NotFound from './pages/status/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -53,6 +53,7 @@ const AppRoutes = () => (
     <Route path="/leaves-approval" element={<ProtectedMainLayoutRoute><LeavesApproval /></ProtectedMainLayoutRoute>} />
 
     <Route path="/leaves-history" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
+    <Route path="/leaves-history/:id" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
     <Route path="/departments" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
