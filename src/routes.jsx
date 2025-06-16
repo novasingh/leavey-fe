@@ -41,12 +41,12 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
     <Route path="/password-reset" element={<PasswordReset />} />
-    <Route path="/user-verification" element={<UserVerification />} /> 
-        {/* Dashboard Routes */}
+    <Route path="/user-verification" element={<UserVerification />} />
+    {/* Dashboard Routes */}
     <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />
     <Route path="/dashboard/employee" element={<ProtectedMainLayoutRoute><EmployeeDashboard /></ProtectedMainLayoutRoute>} />
-    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />   
-    {/* Protected Routes with MainLayout */} 
+    <Route path="/dashboard/admin" element={<ProtectedMainLayoutRoute><AdminDashboard /></ProtectedMainLayoutRoute>} />
+    {/* Protected Routes with MainLayout */}
     {/* <Route path="/dashboard" element={<ProtectedMainLayoutRoute><Dashboard /></ProtectedMainLayoutRoute>} /> */}
     <Route path="/calender" element={<ProtectedMainLayoutRoute><Calendar /></ProtectedMainLayoutRoute>} />
     <Route path="/my-leaves" element={<ProtectedMainLayoutRoute><MyLeaves /></ProtectedMainLayoutRoute>} />
@@ -57,7 +57,6 @@ const AppRoutes = () => (
     <Route path="/departments" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
-    <Route path="/employees" element={<ProtectedMainLayoutRoute><Employees /></ProtectedMainLayoutRoute>} />
     <Route path="/team" element={<ProtectedMainLayoutRoute><Team /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-requests" element={<ProtectedMainLayoutRoute><LeaveRequests /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-requests/:id" element={<ProtectedMainLayoutRoute><LeavesApprovalDetail /></ProtectedMainLayoutRoute>} />
