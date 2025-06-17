@@ -1,20 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import EmojiPicker from 'emoji-picker-react';
 import { addDepartment } from '../../services/departmentService';
+import Select from 'react-select';
+import { getUsers } from '../../services/userService';
 
 const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
-
     const [form, setForm] = useState({
         name: '',
         description: '',
-        icon: ''
+        icon: '',
+        manager: null,
     });
-
+    const [managers, setManagers] = useState([]);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    useEffect(() => {
+        const fetchManagers = async () => {
+            try {
+                const users = await getUsers();
+                const managerUsers = users.filter(u => u.role_details?.name?.toLowerCase() === 'manager');
+                setManagers(managerUsers.map(u => ({
+                    value: u.id,
+                    label: `${u.first_name} ${u.last_name} (${u.email})`
+                })));
+            } catch (e) {
+                setManagers([]);
+            }
+        };
+        fetchManagers();
+    }, []);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleManagerChange = (selected) => {
+        setForm({ ...form, manager: selected });
     };
 
     const onEmojiClick = (emojiObject) => {
@@ -25,7 +47,8 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const newDepartment = await addDepartment(form);
+            const payload = { ...form, manager: form.manager ? form.manager.value : null };
+            const newDepartment = await addDepartment(payload);
             onDepartmentAdded(newDepartment);
             onClose();
         } catch (error) {
@@ -62,13 +85,23 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
                             {form.icon ? form.icon : 'Choose'}
                         </Button>
                     </Form.Group>
-
                     {showEmojiPicker && (
                         <div className="d-flex justify-content-center mb-3">
                             <EmojiPicker onEmojiClick={onEmojiClick} />
                         </div>
                     )}
-
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-bold mb-2">Manager:</Form.Label>
+                        <Select
+                            options={managers}
+                            value={form.manager}
+                            onChange={handleManagerChange}
+                            placeholder="Select manager by name or email..."
+                            isClearable
+                            isSearchable
+                            classNamePrefix="react-select"
+                        />
+                    </Form.Group>
                     <Form.Group className="mb-4">
                         <Form.Label className="fw-bold mb-2">Description: </Form.Label>
                         <Form.Control
@@ -81,7 +114,6 @@ const AddDepartmentModal = ({ show, onClose, onDepartmentAdded }) => {
                             style={{ borderRadius: 8, fontSize: 15 }}
                         />
                     </Form.Group>
-
                     <div className="d-flex justify-content-between mt-4">
                         <Button variant="danger" onClick={onClose} style={{ borderRadius: 20, minWidth: 110, fontWeight: 500, fontSize: 16 }}>Cancel</Button>
                         <Button type="submit" variant="primary" style={{ borderRadius: 20, minWidth: 110, fontWeight: 500, fontSize: 16 }}>Add</Button>

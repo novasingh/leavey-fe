@@ -6,11 +6,13 @@ import logo from '../../assets/images/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import authService from '../../services/authService';
+import notificationService from '../../services/notificationService';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(authService.getUser());
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -22,6 +24,12 @@ const Header = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (currentUser?.id) {
+      notificationService.list(currentUser.id).then(res => setNotifications(res.data));
+    }
+  }, [currentUser?.id]);
+
   const changeLanguage = (lng) => {
     console.log(lng);
     i18n.changeLanguage(lng);
@@ -31,6 +39,14 @@ const Header = () => {
   const handleLogout = () => {
     authService.logout();
     navigate('/login');
+  };
+
+  const handleMarkRead = async (id) => {
+    if (!currentUser?.id) return;
+    await notificationService.notificationRead(id, currentUser.id);
+    // Refresh notifications after marking as read
+    const res = await notificationService.list(currentUser.id);
+    setNotifications(res.data);
   };
 
   const userRole = currentUser?.role_details?.name || authService.getUserRole();
@@ -88,30 +104,36 @@ const Header = () => {
             <Dropdown.Toggle variant="link" id="notification-dropdown" className="p-0">
               <span className="badge-container text-dark">
                 <FaBell size={25} />
-                <span className="badge">3</span>
+                {notifications.some(n => !n.is_read) && (
+                  <span className="badge">{notifications.filter(n => !n.is_read).length}</span>
+                )}
               </span>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <div className="notification-header">
+            <Dropdown.Menu style={{ minWidth: 320 }}>
+              <div className="notification-header px-3 pt-2 pb-1">
                 <h6 className="mb-0">{t('header.notifications.title')}</h6>
-                <small className="text-muted">{t('header.notifications.newCount', { count: 3 })}</small>
+                <small className="text-muted">{t('header.notifications.newCount', { count: notifications.filter(n => !n.is_read).length })}</small>
               </div>
-              <Dropdown.Item href="#/action-1">
-                <div className="notification-item">
-                  <div className="notification-content">
-                    <p className="mb-0">{t('header.notifications.sample.leaveApproved')}</p>
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: '2 hours' })}</small>
+              <Dropdown.Divider />
+              {notifications.length === 0 && (
+                <Dropdown.Item disabled>No notifications</Dropdown.Item>
+              )}
+              {notifications.map(n => (
+                <Dropdown.Item
+                  key={n.id}
+                  onClick={() => handleMarkRead(n.id)}
+                  style={{ fontWeight: n.is_read ? 'normal' : 'bold', whiteSpace: 'normal' }}
+                >
+                  <div className="notification-item">
+                    <div className="notification-content">
+                      <div className="mb-0">{n.title}</div>
+                      <small className="text-muted">{n.message}</small>
+                      <br />
+                      <small className="text-muted">{new Date(n.created_at).toLocaleString()}</small>
+                    </div>
                   </div>
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Item href="#/action-2">
-                <div className="notification-item">
-                  <div className="notification-content">
-                    <p className="mb-0">{t('header.notifications.sample.newTeamMember')}</p>
-                    <small className="text-muted">{t('header.notifications.sample.timeAgo', { time: 'Yesterday' })}</small>
-                  </div>
-                </div>
-              </Dropdown.Item>
+                </Dropdown.Item>
+              ))}
               <Dropdown.Divider />
               <Dropdown.Item as={Link} to="/notifications" className="text-center">
                 <small>{t('header.notifications.viewAll')}</small>

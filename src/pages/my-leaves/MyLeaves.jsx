@@ -6,6 +6,7 @@ import DeleteConfirmationModal from '../modal/DeleteConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import CustomLoader from '../../components/CustomLoader';
 import './MyLeaves.scss';
 
 const MyLeaves = () => {
@@ -112,7 +113,7 @@ const MyLeaves = () => {
   );
 
   return (
-    <Container className="my-5">
+    <Container>
       <Row>
         <Col>
           <div className="leave-header d-flex justify-content-between align-items-center mb-3">
@@ -152,7 +153,7 @@ const MyLeaves = () => {
               </div>
 
               {loading ? (
-                <div className="text-center p-4">Loading...</div>
+                <div className="text-center p-4"><CustomLoader /></div>
               ) : (
                 <div className="scroll-container">
                   <Table columns={columns} data={filtered} onRowClick={handleRowClick} />

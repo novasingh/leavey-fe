@@ -3,7 +3,7 @@ import './Sidebar.scss';
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoPaperPlane } from "react-icons/io5";
 import { BsCalendarWeekFill, BsFillChatLeftQuoteFill } from "react-icons/bs";
-import { FaBuilding, FaUserTie, FaCog, FaUsers } from "react-icons/fa";
+import { FaBuilding, FaUserTie, FaCog, FaUsers, FaBell } from "react-icons/fa";
 import { useTranslation } from 'react-i18next';
 import authService from '../../services/authService';
 
@@ -19,6 +19,7 @@ const Sidebar = () => {
   const userRole = authService.getUserRole();
   const userPermissions = authService.getUserPermissions();
 
+  console.log('userRole')
 
   // Define all menu items with their required permissions
   const allMenuItems = [
@@ -27,9 +28,11 @@ const Sidebar = () => {
     { path: '/leaves-history', icon: <IoPaperPlane />, textKey: 'sidebar.leavesHistory', permission: 'leaves-history' },
     { path: '/departments', icon: <FaBuilding />, textKey: 'sidebar.department', permission: 'department' },
     { path: '/role', icon: <FaUserTie />, textKey: 'sidebar.role', permission: 'role' },
+    { path: '/users', icon: <FaUsers />, textKey: 'sidebar.users', permission: 'employees' },
     { path: '/leave-setting', icon: <FaCog />, textKey: 'sidebar.leaveSetting', permission: 'leave-setting' },
-   // { path: '/calender', icon: <BsCalendarWeekFill />, textKey: 'sidebar.calendar', permission: 'calender' },
+    { path: '/notifications', icon: <FaBell />, textKey: 'sidebar.notifications', permission: 'notification' },
     { path: '/faq', icon: <BsFillChatLeftQuoteFill />, textKey: 'sidebar.faq', permission: 'faq' },
+    
   ];
 
   const getDashboardPath = () => {
@@ -45,14 +48,14 @@ const Sidebar = () => {
   // Filter menu items based on user permissions
   const getFilteredMenuItems = () => {
     const dashboardItem = {
-      path: getDashboardPath(), // ← uses the dynamic function
+      path: getDashboardPath(),
       icon: <MdSpaceDashboard />,
       textKey: 'sidebar.dashboard',
       permission: 'dashboard'
     };
 
     const filtered = allMenuItems.filter(item => userPermissions.includes(item.permission));
-    return [dashboardItem, ...filtered]; // dashboard always comes first
+    return [dashboardItem, ...filtered];
   };
 
   const menuItems = getFilteredMenuItems();

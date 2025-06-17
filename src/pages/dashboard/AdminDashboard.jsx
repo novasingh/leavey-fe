@@ -18,6 +18,7 @@ import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import LeaveBarChart from '../../components/Chart/LeaveBarChart';
 import LeaveTypeMonthBarChart from '../../components/Chart/LeaveTypeMonthBarChart';
+import CustomLoader from '../../components/CustomLoader';
 
 const AdminDashboard = () => {
 
@@ -38,67 +39,37 @@ const AdminDashboard = () => {
   // Add state to track calendar's current view date
   const [calendarViewDate, setCalendarViewDate] = useState(new Date(selectedYear, selectedMonth, 1));
 
+  // Fetch user info on mount
   useEffect(() => {
-    // Fetch user info on mount
     const loggedInUser = authService.getUser();
-    console.log('Fetched user:', loggedInUser);
     setUser(loggedInUser);
     setLoadingUser(false);
+  }, []);
 
-    const token = localStorage.getItem('access_token');
-
-    // fetchDepartments();
-    const fetchDepartments = async () => {
+  // Fetch departments, events, leave types, and users on mount
+  useEffect(() => {
+    const fetchAll = async () => {
       try {
-        const res = await getDepartments();
-        console.log('Fetched Departments:', res);
-
-        setDepartments(res);
+        const [departmentsRes, eventsRes, leaveTypesRes, usersRes] = await Promise.all([
+          getDepartments(),
+          getEvents(),
+          getLeaveTypes(),
+          getUsers()
+        ]);
+        setDepartments(departmentsRes);
+        setEvents(eventsRes);
+        setLeaveTypes(leaveTypesRes);
+        setUsers(usersRes);
       } catch (error) {
-        console.error('Failed to fetch departments', error);
-      }
-    }
-    fetchDepartments();
-
-    // fetchEvent()
-    const fetchEvents = async () => {
-      try {
-        const res = await getEvents();
-        console.log('Fetched Events:', res);
-
-        setEvents(res);
-      } catch (error) {
-        console.error('Failed to fetch events', error);
-      }
-    }
-    fetchEvents();
-
-    // fetchLEaveTypes()
-    const fetchLeaveTypes = async () => {
-      try {
-        const res = await getLeaveTypes();
-        console.log('Fetched Leave Types:', res);
-
-        setLeaveTypes(res);
-      } catch (error) {
-        console.error('Failed to fetch leave types', error);
-      }
-    }
-    fetchLeaveTypes();
-
-    // fetchUsers
-    const fetchUsers = async () => {
-      try {
-        const res = await getUsers();
-        setUsers(res);
-        console.log('Fetched users:', res);
-      } catch (error) {
-        console.error('Failed to fetch users', error);
+        console.error('Failed to fetch initial data', error);
       }
     };
-    fetchUsers();
+    fetchAll();
+  }, []);
 
-    // fetchLeaveRequest()
+  // Fetch leave requests after users are loaded
+  useEffect(() => {
+    if (users.length === 0) return;
     const fetchLeaveRequests = async () => {
       try {
         const data = await getLeave();
@@ -125,10 +96,12 @@ const AdminDashboard = () => {
       } catch (err) {
         console.error('Failed to fetch leave requests:', err);
       }
-    }
+    };
     fetchLeaveRequests();
+  }, [users]);
 
-    // Fetch leave settings
+  // Fetch leave settings on mount
+  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const settings = await getLeaveSettings();
@@ -138,7 +111,7 @@ const AdminDashboard = () => {
       }
     };
     fetchSettings();
-  }, [users]); // depend on users so enrichment works
+  }, []);
 
   // --- Year/Month Filter ---
   const allYears = Array.from(new Set(leaveRequests.map(l => new Date(l.from).getFullYear())));
@@ -172,7 +145,11 @@ const AdminDashboard = () => {
 
   // Loading screen
   if (loadingUser) {
-    return <div className="dashboardPage-page">Loading user info...</div>;
+    return (
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CustomLoader />
+      </div>
+    );
   }
 
   // No user fallback
@@ -325,7 +302,8 @@ const AdminDashboard = () => {
         scrollbarWidth: 'none',    // Firefox
         msOverflowStyle: 'none',        // IE/Edge
         minHeight: '230px',
-        height: 'auto'
+        height: 'auto',
+        width: 'calc(100vw - 200px)'
       }}>
         {departments.length > 0 ? (
           departments.map((dept) => {
@@ -436,7 +414,8 @@ const AdminDashboard = () => {
         {/* Types */}
         <Col lg={3}>
           <div className="d-flex flex-column h-100">
-            <div className="department-list-header">
+            <Card>
+               <div className="department-list-header">
               <div className="d-flex align-items-center">
                 <div>
                   <h5 style={{ fontWeight: 'bold', marginBottom: 0 }}>Leave Types</h5>
@@ -446,8 +425,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-
-            <Card>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 16, minHeight: '300px', height: '650px', maxHeight: '650px' }}>
                 {leaveType.length > 0 ? (
                   leaveType.map((type) => (

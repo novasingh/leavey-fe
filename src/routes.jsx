@@ -20,7 +20,7 @@ import { LeavesHistory } from './pages/leaves-history';
 import { Department } from './pages/department';
 import { Role } from './pages/role';
 import { LeaveSetting } from './pages/leave-setting';
-import { Employees } from './pages/employees';
+import { Users } from './pages/users';
 import MainLayout from './layouts/MainLayout'
 import NotFound from './pages/status/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -56,6 +56,7 @@ const AppRoutes = () => (
     <Route path="/leaves-history/:id" element={<ProtectedMainLayoutRoute><LeavesHistory /></ProtectedMainLayoutRoute>} />
     <Route path="/departments" element={<ProtectedMainLayoutRoute><Department /></ProtectedMainLayoutRoute>} />
     <Route path="/role" element={<ProtectedMainLayoutRoute><Role /></ProtectedMainLayoutRoute>} />
+    <Route path="/users" element={<ProtectedMainLayoutRoute><Users /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-setting" element={<ProtectedMainLayoutRoute><LeaveSetting /></ProtectedMainLayoutRoute>} />
     <Route path="/team" element={<ProtectedMainLayoutRoute><Team /></ProtectedMainLayoutRoute>} />
     <Route path="/leave-requests" element={<ProtectedMainLayoutRoute><LeaveRequests /></ProtectedMainLayoutRoute>} />

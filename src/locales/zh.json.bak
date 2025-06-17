@@ -78,7 +78,8 @@
       "profile": "个人资料",
       "logout": "登出"
     }
-  },  "sidebar": {
+  },
+  "sidebar": {
     "dashboard": "仪表板",
     "myLeaves": "我的假期",
     "calendar": "日历",
