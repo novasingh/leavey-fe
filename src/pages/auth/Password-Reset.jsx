@@ -27,11 +27,6 @@ const PasswordReset = () => {
     }
   }, [token])
 
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()

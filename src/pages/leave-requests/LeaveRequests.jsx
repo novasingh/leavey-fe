@@ -3,6 +3,7 @@ import { getLeaveTypes, getLeave, addLeave } from '../../services/leaveService';
 import './LeaveRequests.scss';
 import { useNavigate } from 'react-router-dom';
 import SuccessModal from '../modal/SuccessModal';
+import { Spinner } from 'react-bootstrap';
 
 const LeaveRequest = () => {
   const [leaveTypes, setLeaveTypes] = useState([]);
@@ -11,6 +12,7 @@ const LeaveRequest = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -20,6 +22,8 @@ const LeaveRequest = () => {
     message: '',
     attachment: null,
   });
+
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,6 +69,7 @@ const LeaveRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const selectedLeaveType = leaveTypes.find(type =>
       String(type.leave_type_id) === String(formData.leave_type)
     );
@@ -72,6 +77,7 @@ const LeaveRequest = () => {
     if (!selectedLeaveType) {
       setErrorMessage('Please select a valid leave type.');
       setShowErrorModal(true);
+      setLoading(false);
       return;
     }
 
@@ -83,6 +89,7 @@ const LeaveRequest = () => {
     if (requestedDays > remaining) {
       setErrorMessage(`Requested ${requestedDays} days exceeds your balance for ${selectedLeaveType.name}. You have ${remaining} day(s) left.`);
       setShowErrorModal(true);
+      setLoading(false);
       return;
     }
 
@@ -102,6 +109,8 @@ const LeaveRequest = () => {
       console.error('Submit error:', err);
       setErrorMessage('Failed to submit leave request.');
       setShowErrorModal(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,6 +189,7 @@ const LeaveRequest = () => {
                 value={formData.start_date}
                 onChange={handleChange}
                 required
+                min={today}
               />
               <input
                 type="date"
@@ -188,6 +198,7 @@ const LeaveRequest = () => {
                 value={formData.end_date}
                 onChange={handleChange}
                 required
+                min={formData.start_date || today}
               />
               <div className="upload-group">
                 <div className="styled-upload-box">
@@ -225,7 +236,10 @@ const LeaveRequest = () => {
             />
           </div>
 
-          <button className="full-width" type="submit">Submit</button>
+          <button className="full-width" type="submit" disabled={loading}>
+            {loading ? <Spinner animation="border" size="sm" className="me-2" /> : null}
+            {loading ? 'Submitting...' : 'Submit'}
+          </button>
         </form>
 
         <div className="leave-type-box">

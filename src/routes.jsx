@@ -40,7 +40,7 @@ const AppRoutes = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/forgot-password-confirmation" element={<ForgotPasswordConfirmation />} />
-    <Route path="/password-reset" element={<PasswordReset />} />
+    <Route path="/reset-password" element={<PasswordReset />} />
     <Route path="/user-verification" element={<UserVerification />} />
     {/* Dashboard Routes */}
     <Route path="/dashboard/manager" element={<ProtectedMainLayoutRoute><ManagerDashboard /></ProtectedMainLayoutRoute>} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Card, Table, StatusBadge } from '../../components';
 import { Button, Modal, Container, Row, Col } from 'react-bootstrap';
 import { getLeave } from '../../services/leaveService';
@@ -6,6 +6,7 @@ import { getUsers } from '../../services/userService';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import CustomLoader from '../../components/CustomLoader';
 import './LeavesApproval.scss';
 
 const LeaveApproval = () => {
@@ -14,15 +15,26 @@ const LeaveApproval = () => {
   const [tab, setTab] = useState('Pending');
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+    const applyFilter = useCallback(status => {
+    if (status === 'All') {
+      setFilteredRequests(leaveRequests);
+    } else {
+      setFilteredRequests(leaveRequests.filter(lr => lr.status === status));
+    }
+  }, [leaveRequests]);
+
+
   useEffect(() => {
-    fetchLeaveRequests();
+    setLoading(true);
+    fetchLeaveRequests().finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     applyFilter(tab);
-  }, [tab, leaveRequests]);
+  }, [tab, leaveRequests, applyFilter]);
 
   const fetchLeaveRequests = async () => {
     try {
@@ -55,13 +67,6 @@ const LeaveApproval = () => {
     }
   };
 
-  const applyFilter = status => {
-    if (status === 'All') {
-      setFilteredRequests(leaveRequests);
-    } else {
-      setFilteredRequests(leaveRequests.filter(lr => lr.status === status));
-    }
-  };
 
   const handleRowClick = row => {
     if (row.status === 'Pending') {
@@ -115,6 +120,7 @@ const LeaveApproval = () => {
 
   return (
     <Container className="my-5">
+      {loading && <CustomLoader />}
       <Row>
         <Col>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -150,7 +156,13 @@ const LeaveApproval = () => {
           </div>
           <Card>
             <div className="p-3">
-              <Table columns={columns} data={filteredRequests} onRowClick={handleRowClick} />
+              {loading ? (
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 200 }}>
+                  <CustomLoader />
+                </div>
+              ) : (
+                <Table columns={columns} data={filteredRequests} onRowClick={handleRowClick} />
+              )}
             </div>
           </Card>
         </Col>

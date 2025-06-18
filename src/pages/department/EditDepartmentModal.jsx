@@ -14,7 +14,17 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
         const fetchManagers = async () => {
             try {
                 const users = await getUsers();
-                const managerUsers = users.filter(u => u.role_details?.name?.toLowerCase() === 'manager');
+                let managerUsers = users.filter(u => u.role_details?.name?.toLowerCase() === 'manager');
+                // Always include the current manager if editing and not in the list
+                if (departmentToEdit && departmentToEdit.manager) {
+                    const alreadyIncluded = managerUsers.some(u => u.id === departmentToEdit.manager);
+                    if (!alreadyIncluded) {
+                        const currentManager = users.find(u => u.id === departmentToEdit.manager);
+                        if (currentManager) {
+                            managerUsers = [currentManager, ...managerUsers];
+                        }
+                    }
+                }
                 setManagers(managerUsers.map(u => ({
                     value: u.id,
                     label: `${u.first_name} ${u.last_name} (${u.email})`
@@ -24,7 +34,7 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
             }
         };
         fetchManagers();
-    }, []);
+    }, [departmentToEdit]);
 
     useEffect(() => {
         if (departmentToEdit) {
