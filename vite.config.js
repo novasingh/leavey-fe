@@ -24,5 +24,10 @@ export default defineConfig({
       ],
     },
     cors: true, // allow all origins
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'ec2-54-251-95-96.ap-southeast-1.compute.amazonaws.com'
+    ],
   },
 })
