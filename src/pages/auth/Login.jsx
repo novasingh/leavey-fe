@@ -157,15 +157,7 @@ const Login = () => {
                   >
                     {loading ? t('login.loggingIn') : t('login.loginButton')} {/* Changed */}
                   </Button>
-                  <div className="text-center my-2 text-secondary">{t('login.or')}</div> {/* Changed */}
-                  <Button
-                    variant="light"
-                    className="w-100 border fw-medium d-flex align-items-center justify-content-center gap-2"
-                    style={{ borderRadius: 12, border: '1px solid #ddd', height: 44, fontWeight: 500, fontSize: 16, boxShadow: 'none' }}
-                  >
-                    <FcGoogle size={24} style={{ marginRight: 8 }} />
-                    <span>{t('login.signInWithGoogle')}</span> {/* Changed */}
-                  </Button>
+                 
                 </Form>
               </div>
             </div>

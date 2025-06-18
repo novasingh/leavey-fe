@@ -16,6 +16,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
+import CustomLoader from '../../components/CustomLoader';
 
 const ManagerDashboard = () => {
 
@@ -23,6 +24,7 @@ const ManagerDashboard = () => {
   // User state and loading flag
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
   const [departments, setDepartments] = useState([]);
   const [events, setEvents] = useState([]);
   const [leaveRequestTab, setLeaveRequestTab] = useState('All');
@@ -40,76 +42,46 @@ const ManagerDashboard = () => {
   const calendarRef = useRef(null);
   const [calendarViewDate, setCalendarViewDate] = useState(new Date(selectedYear, selectedMonth, 1));
 
+  // Fetch user info on mount
   useEffect(() => {
-    // Fetch user info on mount
     const loggedInUser = authService.getUser();
-    console.log('Fetched user:', loggedInUser);
     setUser(loggedInUser);
     setLoadingUser(false);
+  }, []);
 
-    const token = localStorage.getItem('access_token');
+  // Fetch departments, events, leave types, users after user is loaded
+  useEffect(() => {
+    if (!user) return;
+    setLoadingDashboard(true);
+    Promise.all([
+      getDepartments(),
+      getEvents(),
+      getLeaveTypes(),
+      getUsers(),
+      getLeaveSettings()
+    ]).then(([departmentsRes, eventsRes, leaveTypesRes, usersRes, leaveSettingsRes]) => {
+      setDepartments(departmentsRes);
+      setEvents(eventsRes);
+      setLeaveTypes(leaveTypesRes);
+      setUsers(usersRes);
+      setLeaveSettings(leaveSettingsRes);
+      setLoadingDashboard(false);
+    }).catch((error) => {
+      setLoadingDashboard(false);
+      console.error('Failed to fetch dashboard data', error);
+    });
+  }, [user]);
 
-    // fetchDepartments();
-    const fetchDepartments = async () => {
-      try {
-        const res = await getDepartments();
-        console.log('Fetched Departments:', res);
-
-        setDepartments(res);
-      } catch (error) {
-        console.error('Failed to fetch departments', error);
-      }
-    }
-    fetchDepartments();
-
-    // fetchEvent()
-    const fetchEvents = async () => {
-      try {
-        const res = await getEvents();
-        console.log('Fetched Events:', res);
-
-        setEvents(res);
-      } catch (error) {
-        console.error('Failed to fetch events', error);
-      }
-    }
-    fetchEvents();
-
-    // fetchLEaveTypes()
-    const fetchLeaveTypes = async () => {
-      try {
-        const res = await getLeaveTypes();
-        console.log('Fetched Leave Types:', res);
-
-        setLeaveTypes(res);
-      } catch (error) {
-        console.error('Failed to fetch leave types', error);
-      }
-    }
-    fetchLeaveTypes();
-
-    // fetchUsers
-    const fetchUsers = async () => {
-      try {
-        const res = await getUsers();
-        setUsers(res);
-        console.log('Fetched users:', res);
-      } catch (error) {
-        console.error('Failed to fetch users', error);
-      }
-    };
-    fetchUsers();
-
-    // fetchLeaveRequest()
+  // Fetch leave requests after users are loaded
+  useEffect(() => {
+    if (!user || users.length === 0) return;
     const fetchLeaveRequests = async () => {
       try {
         const data = await getLeave();
-        // Only include leave requests for employees in the manager's department (by department ID)
         const managerDeptId = user && user.department ? user.department.id : null;
-        // Find all users in the same department by department ID
         const deptUsers = users.filter(u => u.department && u.department.id === managerDeptId);
         const deptUserIds = deptUsers.map(u => u.id);
-        // Enrich leave requests with department name from users, and filter by department ID
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         const formatted = data
           .map(item => {
             const userObj = users.find(u => `${u.first_name} ${u.last_name}` === item.employee_name);
@@ -133,24 +105,12 @@ const ManagerDashboard = () => {
           })
           .filter(lr => lr.user_id && deptUserIds.includes(lr.user_id));
         setLeaveRequests(formatted);
-        console.log('Fetched Leave Requests:', formatted);
       } catch (err) {
         console.error('Failed to fetch leave requests:', err);
       }
-    }
-    fetchLeaveRequests();
-
-    // Fetch leave settings
-    const fetchSettings = async () => {
-      try {
-        const settings = await getLeaveSettings();
-        setLeaveSettings(settings);
-      } catch (err) {
-        console.error('Failed to fetch leave settings:', err);
-      }
     };
-    fetchSettings();
-  }, [users]);
+    fetchLeaveRequests();
+  }, [user, users]);
 
   // --- Year/Month Filter ---
   const allYears = Array.from(new Set(leaveRequests.map(l => new Date(l.from).getFullYear())));
@@ -169,8 +129,12 @@ const ManagerDashboard = () => {
   }, [selectedYear, selectedMonth]);
 
   // Loading screen
-  if (loadingUser) {
-    return <div className="dashboardPage-page">Loading user info...</div>;
+  if (loadingUser || loadingDashboard) {
+    return (
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CustomLoader />
+      </div>
+    );
   }
 
   // No user fallback
@@ -561,14 +525,14 @@ const ManagerDashboard = () => {
             }}>
               {users.filter(u => u.department && u.department.id === managerDeptId && u.id !== user.id).length === 0 ? (
                 <div className="text-muted">No team members found.</div>
-              ) : (
+              ) : 
                 users.filter(u => u.department && u.department.id === managerDeptId && u.id !== user.id).map(u => (
                   <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f8f9fb', borderRadius: 8, padding: '10px 16px' }}>
                     <span style={{ fontWeight: 600, color: '#4D49B3', fontSize: 16 }}>{u.first_name} {u.last_name}</span>
                     <span style={{ color: '#888', fontSize: 13, marginLeft: 'auto' }}>{u.email}</span>
                   </div>
                 ))
-              )}
+              }
             </div>
           </Card>
 

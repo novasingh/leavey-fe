@@ -83,6 +83,7 @@
     "myLeaves": "My Leaves",
     "calendar": "Calendar",
     "faq": "FAQ",
+    "users": "Users",
     "reports": "Reports",
     "documents": "Documents",
     "settings": "Settings",
@@ -91,7 +92,8 @@
     "department": "Department",
     "role": "Role",
     "leaveSetting": "Leave Setting",
-    "employees": "Employees"
+    "employees": "Employees",
+    "notifications": "Notifications"
   },
   "dashboardPage": {
     "title": "Dashboard",

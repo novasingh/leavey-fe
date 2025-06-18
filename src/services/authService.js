@@ -58,7 +58,7 @@ class AuthService {
 
   async resetPassword(token, password, confirmPassword) {
     try {
-      const response = await api.post('/auth/reset-password/', {
+      const response = await api.post('/auth/password-reset/confirm/', {
         token,
         password,
         confirm_password: confirmPassword,

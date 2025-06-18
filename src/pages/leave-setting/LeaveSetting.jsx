@@ -10,6 +10,7 @@ import AddLeaveTypeModal from './AddLeaveTypeModal';
 import EditLeaveTypeModal from './EditLeaveTypeModal';
 import DeleteConfirmationModal from '../../pages/modal/DeleteConfirmationModal';
 import SuccessModal from '../../pages/modal/SuccessModal';
+import CustomLoader from '../../components/CustomLoader';
 
 const LeaveSetting = () => {
   // State for the Leave Types table
@@ -34,14 +35,19 @@ const LeaveSetting = () => {
     cycle_type: 'annual',
   });
 
+  const [loading, setLoading] = useState(true);
+
   const fetchLeaveData = useCallback(async () => {
     try {
+      setLoading(true);
       const typesData = await getLeaveTypes();
       const settingsData = await getLeaveSettings();
       setLeaveTypes(typesData);
       setSettings(settingsData);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching leave settings:", error);
+      setLoading(false);
     }
   }, []);
 
@@ -128,7 +134,13 @@ const LeaveSetting = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaveTypes.map((lt) => (
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center py-5">
+                          <CustomLoader />
+                        </td>
+                      </tr>
+                    ) : leaveTypes.map((lt) => (
                       <tr key={lt.leave_type_id}>
                         <td><span className="fw-semibold ms-1">{lt.name}</span></td>
                         <td><span className="fs-5">{lt.icon}</span></td>

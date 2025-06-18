@@ -68,10 +68,7 @@ const EmployeeDashboard = () => {
       const isMatchingMonth = leaveMonth === selectedMonth;
       const isMatchingYear = leaveYear === selectedYear;
       const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(lr.type);
-      return isApproved && (
-        (isYearlyType && isMatchingYear) ||
-        (!isYearlyType && isMatchingMonth && isMatchingYear)
-      );
+      return isApproved && isMatchingYear;
     });
     const counts = {
       'Annual Leave': 0,
@@ -110,6 +107,10 @@ const EmployeeDashboard = () => {
     }
   };
 
+  const isYearlyType = (leaveType) => {
+  return leaveType && leaveType.category === 'yearly';
+};
+
   const fetchLeaveTypes = async () => {
     try {
       const res = await getLeaveTypes();
@@ -117,11 +118,7 @@ const EmployeeDashboard = () => {
       const quotas = {};
       res.forEach(type => {
         if (!type.is_active) return;
-        if (type.name === 'Marriage Leave' || type.name === 'Maternity Leave') {
-          quotas[type.name] = type.days;
-        } else {
-          quotas[type.name] = type.days / 12;
-        }
+        quotas[type.name] = type.days;
       });
       setLeaveQuotas(quotas);
     } catch (error) {
@@ -132,6 +129,7 @@ const EmployeeDashboard = () => {
   const fetchLeaveRequests = async () => {
     try {
       const data = await getLeave();
+      data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       const formatted = data.map(item => ({
         id: item.id,
         type: item.leave_type_name,
@@ -418,7 +416,7 @@ const EmployeeDashboard = () => {
               const startDate = new Date(lr.start);
               const leaveMonth = startDate.getMonth();
               const leaveYear = startDate.getFullYear();
-              const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(type);
+              //const isYearlyType = ['Marriage Leave', 'Maternity Leave'].includes(type);
 
               const match =
                 (isYearlyType && leaveYear === selectedYear) ||
@@ -432,8 +430,8 @@ const EmployeeDashboard = () => {
             // Render cards for each leave type (active only)
             return (leaveTypes || []).filter(type => type.is_active).map(type => {
               const leaveName = type.name;
-              const isYearly = ['Marriage Leave', 'Maternity Leave'].includes(leaveName);
-              const quota = isYearly ? type.days : Math.round(type.days / 12);
+              //const isYearly = ['Marriage Leave', 'Maternity Leave'].includes(leaveName);
+              const quota = type.days;
               const used = Math.round(usedLeave[leaveName] || 0);
               const color = leaveTypeColors[leaveName];
               const percent = quota > 0 ? Math.min(100, Math.round((used / quota) * 100)) : 0;
@@ -473,8 +471,8 @@ const EmployeeDashboard = () => {
                       <div className="ms-3 flex-grow-1">
                         <h5 className="fw-bold mb-1" style={{ color }}>{leaveName}</h5>
                         <p className="mb-1" style={{ fontWeight: 500, color: '#333' }}>
-                          <span role="img" aria-label="Count">📅</span>{' '}
-                          {used} / {quota} {isYearly ? 'per Year' : 'Per Month'}
+                          <span role="img" aria-label="Count">📅</span>{}
+                          {used} / {quota} per Year
                         </p>
 
                         {/* Progress Bar */}

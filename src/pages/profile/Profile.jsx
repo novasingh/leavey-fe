@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Form, Button, Spinner, Image } from 'react-b
 import { getProfile, updateProfile } from '../../services/profileService';
 import SuccessModal from '../modal/SuccessModal';
 import { FaCamera } from 'react-icons/fa';
+import CustomLoader from '../../components/CustomLoader';
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -84,14 +85,12 @@ const Profile = () => {
     return dateString;
   };
 
-  if (loading) {
-    return <Spinner animation="border" className="m-5" />;
-  }
+  
 
   return (
     <Container fluid className="p-4">
       <h3 className="mb-4 fw-bold">My Profile</h3>
-
+      {loading ? <div style={{width:'100%', height: '100%', display: ' flex', justifyContent: 'center', alignItems: 'center'}}><CustomLoader /></div>:
       <Row>
         {/* Profile Picture Column */}
         <Col xl={4} lg={5} className="mb-4 mb-lg-0">
@@ -115,7 +114,7 @@ const Profile = () => {
                   variant="light"
                   onClick={() => fileInputRef.current.click()}
                   className="border"
-                  style={{ position: 'absolute', bottom: '5px', right: '5px', borderRadius: '50%', width: '40px', height: '40px' }}
+                  style={{ position: 'absolute', bottom: '5px', right: '5px', borderRadius: '50%', width: '40px', height: '40px', padding: 0 }}
                 >
                   <FaCamera />
                 </Button>
@@ -204,7 +203,7 @@ const Profile = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+      </Row>}
 
       <SuccessModal
         show={showSuccessModal}

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table as BsTable } from 'react-bootstrap';
 import './Table.scss';
+import Pagination from '../Pagination';
 
 const Table = ({ 
   columns, 
@@ -11,8 +12,17 @@ const Table = ({
   bordered = false, 
   responsive = true,
   className,
-  onRowClick
+  onRowClick,
+  pageSize = 10,
+  currentPage: controlledPage,
+  onPageChange: controlledOnPageChange
 }) => {
+  const [internalPage, setInternalPage] = useState(1);
+  const totalPages = Math.ceil(data.length / pageSize);
+  const currentPage = controlledPage || internalPage;
+  const onPageChange = controlledOnPageChange || setInternalPage;
+  const paginatedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div className={`custom-table-wrapper ${className || ''}`}>
       <BsTable 
@@ -32,8 +42,8 @@ const Table = ({
           </tr>
         </thead>
         <tbody>
-          {data.length > 0 ? (
-            data.map((row, index) => (
+          {paginatedData.length > 0 ? (
+            paginatedData.map((row, index) => (
               <tr 
                 key={row.id || index} 
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -55,6 +65,9 @@ const Table = ({
           )}
         </tbody>
       </BsTable>
+      {totalPages > 1 && (
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
+      )}
     </div>
   );
 };
@@ -74,7 +87,10 @@ Table.propTypes = {
   bordered: PropTypes.bool,
   responsive: PropTypes.bool,
   className: PropTypes.string,
-  onRowClick: PropTypes.func
+  onRowClick: PropTypes.func,
+  pageSize: PropTypes.number,
+  currentPage: PropTypes.number,
+  onPageChange: PropTypes.func
 };
 
 export default Table;

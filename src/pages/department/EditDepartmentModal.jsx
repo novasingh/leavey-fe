@@ -2,18 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import EmojiPicker from 'emoji-picker-react';
 import { updateDepartment } from '../../services/departmentService';
+import Select from 'react-select';
+import { getUsers } from '../../services/userService';
 
 const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToEdit }) => {
-
-    const [form, setForm] = useState({ name: '', manager: '', description: '', icon: '' });
+    const [form, setForm] = useState({ name: '', manager: null, description: '', icon: '' });
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [managers, setManagers] = useState([]);
+
+    useEffect(() => {
+        const fetchManagers = async () => {
+            try {
+                const users = await getUsers();
+                let managerUsers = users.filter(u => u.role_details?.name?.toLowerCase() === 'manager');
+                // Always include the current manager if editing and not in the list
+                if (departmentToEdit && departmentToEdit.manager) {
+                    const alreadyIncluded = managerUsers.some(u => u.id === departmentToEdit.manager);
+                    if (!alreadyIncluded) {
+                        const currentManager = users.find(u => u.id === departmentToEdit.manager);
+                        if (currentManager) {
+                            managerUsers = [currentManager, ...managerUsers];
+                        }
+                    }
+                }
+                setManagers(managerUsers.map(u => ({
+                    value: u.id,
+                    label: `${u.first_name} ${u.last_name} (${u.email})`
+                })));
+            } catch {
+                setManagers([]);
+            }
+        };
+        fetchManagers();
+    }, [departmentToEdit]);
 
     useEffect(() => {
         if (departmentToEdit) {
-
             setForm({
                 name: departmentToEdit.name || '',
-                manager: departmentToEdit.manager || '',
+                manager: departmentToEdit.manager ? {
+                    value: departmentToEdit.manager,
+                    label: departmentToEdit.manager_name || ''
+                } : null,
                 description: departmentToEdit.description || '',
                 icon: departmentToEdit.icon || ''
             });
@@ -24,6 +54,10 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleManagerChange = (selected) => {
+        setForm({ ...form, manager: selected });
+    };
+
     const onEmojiClick = (emojiObject) => {
         setForm(prevForm => ({ ...prevForm, icon: emojiObject.emoji }));
         setShowEmojiPicker(false);
@@ -32,10 +66,9 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!departmentToEdit) return;
-
         try {
-
-            await updateDepartment(departmentToEdit.id, form);
+            const payload = { ...form, manager: form.manager ? form.manager.value : null };
+            await updateDepartment(departmentToEdit.id, payload);
             onDepartmentUpdated();
             onClose();
         } catch (error) {
@@ -62,7 +95,6 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             style={{ borderRadius: 12 }}
                         />
                     </Form.Group>
-
                     <Form.Group className="mb-3">
                         <div className="d-flex align-items-center">
                             <Form.Label className="fw-bold mb-0 me-3">Icon:</Form.Label>
@@ -76,7 +108,18 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             </div>
                         )}
                     </Form.Group>
-
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-bold">Manager:</Form.Label>
+                        <Select
+                            options={managers}
+                            value={form.manager}
+                            onChange={handleManagerChange}
+                            placeholder="Select manager by name or email..."
+                            isClearable
+                            isSearchable
+                            classNamePrefix="react-select"
+                        />
+                    </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label className="fw-bold">Description: </Form.Label>
                         <Form.Control
@@ -86,16 +129,6 @@ const EditDepartmentModal = ({ show, onClose, onDepartmentUpdated, departmentToE
                             name="description"
                             value={form.description}
                             onChange={handleChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-4 d-flex align-items-center">
-                        <Form.Label className="fw-bold mb-0 me-3" style={{ flex: '0 0 170px' }}>Assign Manager:</Form.Label>
-                        <Form.Control
-                            type="text"
-                            readOnly
-                            plaintext
-                            value={departmentToEdit?.manager_name || 'No Manager Assigned'}
-                            className="text-end"
                         />
                     </Form.Group>
                     <div className="d-flex justify-content-between mt-4">

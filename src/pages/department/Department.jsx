@@ -7,6 +7,10 @@ import EditDepartmentModal from './EditDepartmentModal';
 import SuccessModal from '../modal/SuccessModal';
 import DeleteConfirmationModal from '../modal/DeleteConfirmationModal';
 import { getDepartments, deleteDepartment } from '../../services/departmentService';
+import CustomLoader from '../../components/CustomLoader';
+import Pagination from '../../components/Pagination';
+
+const PAGE_SIZE = 10;
 
 const Department = () => {
   const [departments, setDepartments] = useState([]);
@@ -17,13 +21,19 @@ const Department = () => {
   const [departmentToEdit, setDepartmentToEdit] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [departmentToDelete, setDepartmentToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchDepartments = useCallback(async () => {
     try {
+      setLoading(true);
       const data = await getDepartments();
       setDepartments(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching departments:", error);
+      setLoading(false);
     }
   }, []);
 
@@ -73,6 +83,22 @@ const Department = () => {
     setShowSuccessModal(true);
   };
 
+  // Filter departments by department name or manager name
+  const filteredDepartments = departments.filter(dept => {
+    const searchLower = search.toLowerCase();
+    return (
+      dept.name.toLowerCase().includes(searchLower) ||
+      (dept.manager_name && dept.manager_name.toLowerCase().includes(searchLower))
+    );
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredDepartments.length / PAGE_SIZE);
+  const paginatedDepartments = filteredDepartments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Reset to first page on search
+  useEffect(() => { setCurrentPage(1); }, [search]);
+
   return (
     <Container fluid className="p-4 department-management-page">
       <Row className="align-items-center mb-3">
@@ -80,11 +106,19 @@ const Department = () => {
           <h3 className="mb-0 fw-bold">Department Management</h3>
           <div className="text-muted" style={{ fontSize: '0.95rem' }}>settings / Department Management</div>
         </Col>
-        <Col xs="auto">
-          <button className="btn btn-primary" style={{ borderRadius: 20, fontWeight: 500, padding: '8px 24px' }}
+        <Col className="d-flex align-items-center justify-content-end gap-2">
+         <input
+            type="text"
+            className="form-control"
+            placeholder="Search by Department or Manager Name..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{width: '300px'}}
+          />
+          <Button className="btn btn-primary" style={{ borderRadius: 20, fontWeight: 500, padding: '8px 24px' }}
             onClick={() => setShowAddModal(true)}>
             <FaPlus className="me-2" /> Add New Department
-          </button>
+          </Button>
         </Col>
       </Row>
       <Row>
@@ -104,40 +138,55 @@ const Department = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {departments?.map((dept) => (
-                      <tr key={dept.id}>
-                        <td>
-                          <b>{dept.name}</b>
-                        </td>
-                        <td>
-                          <span className="fs-5">{dept.icon}</span>
-                        </td>
-                        <td>{dept.manager_name}</td>
-                        <td>{dept.description}</td>
-                        <td>{dept.total_employees}</td>
-                        <td>
-                          <Button
-                            variant="success"
-                            size="sm"
-                            className="me-2 custom-btn"
-                            onClick={() => handleEditClick(dept)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            className="custom-btn"
-                            onClick={() => handleDeleteClick(dept)}
-                          >
-                            Delete
-                          </Button>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center py-5">
+                          <CustomLoader />
                         </td>
                       </tr>
-                    ))}
+                    ) : paginatedDepartments?.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted py-5">No departments found.</td>
+                      </tr>
+                    ) : (
+                      paginatedDepartments?.map((dept) => (
+                        <tr key={dept.id}>
+                          <td>
+                            <b>{dept.name}</b>
+                          </td>
+                          <td>
+                            <span className="fs-5">{dept.icon}</span>
+                          </td>
+                          <td>{dept.manager_name}</td>
+                          <td>{dept.description}</td>
+                          <td>{dept.total_employees}</td>
+                          <td>
+                            <Button
+                              variant="success"
+                              size="sm"
+                              className="me-2 custom-btn"
+                              onClick={() => handleEditClick(dept)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              className="custom-btn"
+                              onClick={() => handleDeleteClick(dept)}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
+              {totalPages > 1 && (
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              )}
             </Card.Body>
           </Card>
         </Col>

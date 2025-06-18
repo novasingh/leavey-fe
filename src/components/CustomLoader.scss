@@ -1,0 +1,46 @@
+.custom-loader-overlay {
+//   background: rgba(255,255,255,0.95);
+  
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.custom-loader-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.custom-loader-icon {
+  width: 54px;
+  height: 54px;
+  animation: loader-spin 1.2s linear infinite;
+}
+
+.custom-loader-logo {
+  width: 90px;
+  height: 90px;
+  margin-left: 8px;
+}
+
+.custom-loader-text {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #5B4B8A;
+  margin-left: 10px;
+  letter-spacing: 2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+@keyframes loader-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
