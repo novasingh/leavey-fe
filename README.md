@@ -1,3 +1,12 @@
+# University of Malaya Group Project
+
+**Contributors:**
+- [Abdi Ahmed Mohamed (2190992)](https://github.com/AbdiAhmedMo)
+- [Akashdeep Singh (24072095)](https://github.com/novasingh)
+- [Najla Geis Junaid Bawazier (24068527)](https://github.com/julliebwz)
+- [Salsabila Harlen (24076059)](https://github.com/Reeedr12)
+- [Zahra Fathanah (23067637)](https://github.com/zfathanah)
+
 # Leavey Frontend
 
 A comprehensive React-based employee leave management system with advanced role-based access control, multi-language support, and modern UI components. Built with Vite, React Bootstrap, Redux Toolkit, and custom SCSS theming.
